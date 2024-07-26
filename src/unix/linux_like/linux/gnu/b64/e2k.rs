@@ -395,12 +395,6 @@ s! {
         __unused4: ::c_ulong,
         __unused5: ::c_ulong,
     }
-
-    pub struct seccomp_notif_sizes {
-        pub seccomp_notif: ::__u16,
-        pub seccomp_notif_resp: ::__u16,
-        pub seccomp_data: ::__u16,
-    }
 }
 
 pub const POSIX_FADV_DONTNEED: ::c_int = 4;
@@ -756,11 +750,6 @@ pub const B2500000: ::speed_t = 0o010014;
 pub const B3000000: ::speed_t = 0o010015;
 pub const B3500000: ::speed_t = 0o010016;
 pub const B4000000: ::speed_t = 0o010017;
-
-pub const SECCOMP_SET_MODE_STRICT: ::c_uint = 0;
-pub const SECCOMP_SET_MODE_FILTER: ::c_uint = 1;
-pub const SECCOMP_GET_ACTION_AVAIL: ::c_uint = 2;
-pub const SECCOMP_GET_NOTIF_SIZES: ::c_uint = 3;
 
 pub const VEOL: usize = 11;
 pub const VEOL2: usize = 16;
