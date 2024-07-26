@@ -1768,6 +1768,9 @@ fn test_android(target: &str) {
 
             // These are tested in the `linux_elf.rs` file.
             "Elf64_Phdr" | "Elf32_Phdr" => true,
+            // These are intended to be opaque
+            "posix_spawn_file_actions_t" => true,
+            "posix_spawnattr_t" => true,
             _ => false,
         }
     });
@@ -1980,30 +1983,14 @@ fn test_android(target: &str) {
 
             // Added in API level 28, but some tests use level 24.
             "getrandom" => true,
+
+            // Added in API level 28, but some tests use level 24.
             "syncfs" => true,
+
+            // Added in API level 28, but some tests use level 24.
             "pthread_attr_getinheritsched" | "pthread_attr_setinheritsched" => true,
+            // Added in API level 28, but some tests use level 24.
             "fread_unlocked" | "fwrite_unlocked" | "fgets_unlocked" | "fflush_unlocked" => true,
-            "posix_spawn"
-            | "posix_spawnp"
-            | "posix_spawnattr_init"
-            | "posix_spawnattr_destroy"
-            | "posix_spawnattr_getsigdefault"
-            | "posix_spawnattr_setsigdefault"
-            | "posix_spawnattr_getsigmask"
-            | "posix_spawnattr_setsigmask"
-            | "posix_spawnattr_getflags"
-            | "posix_spawnattr_setflags"
-            | "posix_spawnattr_getpgroup"
-            | "posix_spawnattr_setpgroup"
-            | "posix_spawnattr_getschedpolicy"
-            | "posix_spawnattr_setschedpolicy"
-            | "posix_spawnattr_getschedparam"
-            | "posix_spawnattr_setschedparam"
-            | "posix_spawn_file_actions_init"
-            | "posix_spawn_file_actions_destroy"
-            | "posix_spawn_file_actions_addopen"
-            | "posix_spawn_file_actions_addclose"
-            | "posix_spawn_file_actions_adddup2" => true,
 
             // FIXME: bad function pointers:
             "isalnum" | "isalpha" | "iscntrl" | "isdigit" | "isgraph" | "islower" | "isprint"
@@ -2726,7 +2713,6 @@ fn test_emscripten(target: &str) {
                "semaphore.h",
                "shadow.h",
                "signal.h",
-               "spawn.h",
                "stddef.h",
                "stdint.h",
                "stdio.h",
@@ -3621,10 +3607,6 @@ fn test_linux(target: &str) {
             "priority_t" if musl => true,
             "name_t" if musl => true,
 
-            // These are intended to be opaque, but glibc and musl define them.
-            "posix_spawn_file_actions_t" => true,
-            "posix_spawnattr_t" => true,
-
             t => {
                 if musl {
                     // LFS64 types have been removed in musl 1.2.4+
@@ -3772,10 +3754,6 @@ fn test_linux(target: &str) {
             // fail. The problem doesn't seem to be present in more recent versions of the linux
             // kernel so we can drop this and test the type once this new version is used in CI.
             "sched_attr" => true,
-
-            // These are intended to be opaque, but glibc and musl define them.
-            "posix_spawn_file_actions_t" => true,
-            "posix_spawnattr_t" => true,
 
             _ => false,
         }
@@ -3935,6 +3913,12 @@ fn test_linux(target: &str) {
             | "SW_MAX"
             | "SW_CNT"
                 if ppc64 || riscv64 => true,
+
+            // FIXME: requires more recent kernel headers on CI
+            | "MFD_EXEC"
+            | "MFD_NOEXEC_SEAL"
+            | "SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV"
+                if sparc64 => true,
 
             // FIXME: Not currently available in headers on ARM and musl.
             "NETLINK_GET_STRICT_CHK" if arm || musl => true,
