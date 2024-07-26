@@ -105,6 +105,7 @@ SYS_fsconfig
 SYS_fsmount
 SYS_fsopen
 SYS_fspick
+SYS_fstat
 SYS_fstat64
 SYS_fstatat64
 SYS_fstatfs64
@@ -169,6 +170,7 @@ SYS_sendfile
 SYS_sendfile64
 SYS_set_backtrace
 SYS_set_mempolicy_home_node
+SYS_setrlimit
 SYS_sgetmask
 SYS_shmat
 SYS_shmctl
