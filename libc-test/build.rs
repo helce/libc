@@ -312,6 +312,8 @@ fn test_apple(target: &str) {
             // it is a moving target, changing through versions
             // also contains bitfields members
             "tcp_connection_info" => true,
+            // FIXME: The size is changed in recent macOSes.
+            "malloc_introspection_t" => true,
 
             _ => false,
         }
@@ -1611,6 +1613,7 @@ fn test_android(target: &str) {
                "sched.h",
                "semaphore.h",
                "signal.h",
+               "spawn.h",
                "stddef.h",
                "stdint.h",
                "stdio.h",
@@ -1977,14 +1980,30 @@ fn test_android(target: &str) {
 
             // Added in API level 28, but some tests use level 24.
             "getrandom" => true,
-
-            // Added in API level 28, but some tests use level 24.
             "syncfs" => true,
-
-            // Added in API level 28, but some tests use level 24.
             "pthread_attr_getinheritsched" | "pthread_attr_setinheritsched" => true,
-            // Added in API level 28, but some tests use level 24.
             "fread_unlocked" | "fwrite_unlocked" | "fgets_unlocked" | "fflush_unlocked" => true,
+            "posix_spawn"
+            | "posix_spawnp"
+            | "posix_spawnattr_init"
+            | "posix_spawnattr_destroy"
+            | "posix_spawnattr_getsigdefault"
+            | "posix_spawnattr_setsigdefault"
+            | "posix_spawnattr_getsigmask"
+            | "posix_spawnattr_setsigmask"
+            | "posix_spawnattr_getflags"
+            | "posix_spawnattr_setflags"
+            | "posix_spawnattr_getpgroup"
+            | "posix_spawnattr_setpgroup"
+            | "posix_spawnattr_getschedpolicy"
+            | "posix_spawnattr_setschedpolicy"
+            | "posix_spawnattr_getschedparam"
+            | "posix_spawnattr_setschedparam"
+            | "posix_spawn_file_actions_init"
+            | "posix_spawn_file_actions_destroy"
+            | "posix_spawn_file_actions_addopen"
+            | "posix_spawn_file_actions_addclose"
+            | "posix_spawn_file_actions_adddup2" => true,
 
             // FIXME: bad function pointers:
             "isalnum" | "isalpha" | "iscntrl" | "isdigit" | "isgraph" | "islower" | "isprint"
@@ -2468,6 +2487,9 @@ fn test_freebsd(target: &str) {
                 true
             }
 
+            // FIXME: Removed in FreeBSD 15:
+            "LOCAL_CONNWAIT" if freebsd_ver >= Some(15) => true,
+
             _ => false,
         }
     });
@@ -2515,6 +2537,9 @@ fn test_freebsd(target: &str) {
             | "sctp_assoc_change"
             | "sctp_send_failed_event"
             | "sctp_stream_reset_event" => true,
+
+            // FIXME: Changed in FreeBSD 15
+            "tcp_info" | "sockstat" if Some(15) >= freebsd_ver => true,
 
             _ => false,
         }
@@ -2701,6 +2726,7 @@ fn test_emscripten(target: &str) {
                "semaphore.h",
                "shadow.h",
                "signal.h",
+               "spawn.h",
                "stddef.h",
                "stdint.h",
                "stdio.h",
@@ -3321,6 +3347,7 @@ fn test_linux(target: &str) {
     let gnueabihf = target.contains("gnueabihf");
     let x86_64_gnux32 = target.contains("gnux32") && x86_64;
     let riscv64 = target.contains("riscv64");
+    let loongarch64 = target.contains("loongarch64");
     let uclibc = target.contains("uclibc");
     let e2k = target.contains("e2k");
 
@@ -3444,6 +3471,8 @@ fn test_linux(target: &str) {
     // Include linux headers at the end:
     headers! {
         cfg:
+        [loongarch64]: "asm/hwcap.h",
+        [riscv64]: "asm/hwcap.h",
         "asm/mman.h",
         [gnu]: "linux/aio_abi.h",
         "linux/can.h",
@@ -3592,6 +3621,10 @@ fn test_linux(target: &str) {
             "priority_t" if musl => true,
             "name_t" if musl => true,
 
+            // These are intended to be opaque, but glibc and musl define them.
+            "posix_spawn_file_actions_t" => true,
+            "posix_spawnattr_t" => true,
+
             t => {
                 if musl {
                     // LFS64 types have been removed in musl 1.2.4+
@@ -3739,6 +3772,10 @@ fn test_linux(target: &str) {
             // fail. The problem doesn't seem to be present in more recent versions of the linux
             // kernel so we can drop this and test the type once this new version is used in CI.
             "sched_attr" => true,
+
+            // These are intended to be opaque, but glibc and musl define them.
+            "posix_spawn_file_actions_t" => true,
+            "posix_spawnattr_t" => true,
 
             _ => false,
         }
