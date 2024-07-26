@@ -1366,6 +1366,7 @@ TAB1
 TAB2
 TAB3
 TABDLY
+TCP_CONNECTION_INFO
 TCP_FASTOPEN
 TCP_KEEPALIVE
 TCP_KEEPCNT
@@ -2215,6 +2216,7 @@ shmid_ds
 sigaltstack
 sigevent
 siginfo_t
+sigsuspend
 sigwait
 sockaddr_ctl
 sockaddr_dl
@@ -2225,6 +2227,7 @@ statfs
 strcasecmp
 strcasestr
 strftime
+strftime_l
 strncasecmp
 strndup
 strptime
@@ -2245,6 +2248,7 @@ task_info
 task_inspect_t
 task_terminate
 task_threads
+tcp_connection_info
 telldir
 thread_basic_info_t
 thread_extended_info_t

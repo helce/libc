@@ -1,6 +1,6 @@
 [package]
 name = "libc-test"
-version = "0.2.151"
+version = "0.2.152"
 authors = ["The Rust Project Developers"]
 license = "MIT OR Apache-2.0"
 build = "build.rs"
@@ -12,12 +12,11 @@ A test crate for the libc crate.
 
 [dependencies.libc]
 path = ".."
-version = "0.2.151"
+version = "0.2.152"
 default-features = false
 
 [build-dependencies]
-# FIXME: 1.0.84 has a bug about macOS version detection.
-cc = "=1.0.83"
+cc = "1.0.83"
 # FIXME: Use fork ctest until the maintainer gets back.
 ctest2 = "0.4.3"
 
