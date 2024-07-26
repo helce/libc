@@ -116,6 +116,7 @@ cfg_if! {
                  target_arch = "aarch64",
                  target_arch = "riscv64",
                  target_arch = "s390x",
+                 target_arch = "e2k",
                  target_arch = "csky",
                  target_arch = "loongarch64"))] {
         pub const FICLONE: ::c_ulong = 0x40049409;
@@ -227,7 +228,7 @@ cfg_if! {
         pub const FS_IOC32_SETFLAGS: ::Ioctl = 0x40046602;
         pub const FS_IOC32_GETVERSION: ::Ioctl = 0x80047601;
         pub const FS_IOC32_SETVERSION: ::Ioctl = 0x40047602;
-    } else if #[cfg(any(target_arch = "x86_64", target_arch = "riscv64", target_arch = "aarch64", target_arch = "s390x"))] {
+    } else if #[cfg(any(target_arch = "x86_64", target_arch = "riscv64", target_arch = "aarch64", target_arch = "s390x", target_arch = "e2k"))] {
         pub const FS_IOC_GETFLAGS: ::Ioctl = 0x80086601;
         pub const FS_IOC_SETFLAGS: ::Ioctl = 0x40086602;
         pub const FS_IOC_GETVERSION: ::Ioctl = 0x80087601;
@@ -323,6 +324,16 @@ cfg_if! {
     else if #[cfg(target_env = "uclibc")] {
         #[deprecated(since = "0.2.64", note = "Not stable across OS versions")]
         pub const RLIM_NLIMITS: ::__rlimit_resource_t = 15;
+    }
+}
+
+cfg_if! {
+    if #[cfg(target_arch = "e2k")] {
+        pub const RLIMIT_ARCH_NUM: ::__rlimit_resource_t = 10001;
+        pub const RLIMIT_P_STACK: ::__rlimit_resource_t = 10001;
+        pub const RLIMIT_PC_STACK: ::__rlimit_resource_t = 10002;
+        pub const RLIMIT_NLIMITS_EXT: ::__rlimit_resource_t = 2;
+        pub const RLIM_NLIMITS_EXT: ::__rlimit_resource_t = 2;
     }
 }
 

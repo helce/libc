@@ -1693,6 +1693,7 @@ pub const EM_PJ: u16 = 91;
 pub const EM_OPENRISC: u16 = 92;
 pub const EM_ARC_A5: u16 = 93;
 pub const EM_XTENSA: u16 = 94;
+pub const EM_MCST_ELBRUS: u16 = 175;
 pub const EM_AARCH64: u16 = 183;
 pub const EM_TILEPRO: u16 = 188;
 pub const EM_TILEGX: u16 = 191;
@@ -3630,7 +3631,10 @@ pub const UDP_NO_CHECK6_RX: ::c_int = 102;
 pub const MAP_SHARED_VALIDATE: ::c_int = 0x3;
 
 // include/uapi/asm-generic/mman-common.h
+#[cfg(not(target_arch = "e2k"))]
 pub const MAP_FIXED_NOREPLACE: ::c_int = 0x100000;
+#[cfg(target_arch = "e2k")]
+pub const MAP_FIXED_NOREPLACE: ::c_int = 0x400000;
 pub const MLOCK_ONFAULT: ::c_uint = 0x01;
 
 // uapi/linux/vm_sockets.h

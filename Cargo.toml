@@ -46,6 +46,7 @@ targets = [
     "armv7-wrs-vxworks-eabihf",
     "armv7r-none-eabi",
     "armv7r-none-eabihf",
+    "e2k-unknown-linux-gnu",
     "hexagon-unknown-linux-musl",
     "i586-pc-windows-msvc",
     "i586-unknown-linux-gnu",

@@ -597,7 +597,10 @@ pub const LC_MESSAGES_MASK: ::c_int = 1 << LC_MESSAGES;
 pub const MAP_FILE: ::c_int = 0x0000;
 pub const MAP_SHARED: ::c_int = 0x0001;
 pub const MAP_PRIVATE: ::c_int = 0x0002;
+#[cfg(not(target_arch = "e2k"))]
 pub const MAP_FIXED: ::c_int = 0x0010;
+#[cfg(target_arch = "e2k")]
+pub const MAP_FIXED: ::c_int = 0x0100;
 
 pub const MAP_FAILED: *mut ::c_void = !0 as *mut ::c_void;
 
@@ -638,8 +641,15 @@ pub const MS_MGC_MSK: ::c_ulong = 0xffff0000;
 pub const SCM_RIGHTS: ::c_int = 0x01;
 pub const SCM_CREDENTIALS: ::c_int = 0x02;
 
-pub const PROT_GROWSDOWN: ::c_int = 0x1000000;
-pub const PROT_GROWSUP: ::c_int = 0x2000000;
+cfg_if! {
+    if #[cfg(target_arch = "e2k")] {
+        pub const PROT_GROWSDOWN: ::c_int = 0x20;
+        pub const PROT_GROWSUP: ::c_int = 0x40;
+    } else {
+        pub const PROT_GROWSDOWN: ::c_int = 0x1000000;
+        pub const PROT_GROWSUP: ::c_int = 0x2000000;
+    }
+}
 
 pub const MAP_TYPE: ::c_int = 0x000f;
 

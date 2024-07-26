@@ -75,7 +75,8 @@ s! {
             target_arch = "mips64r6",
             target_arch = "powerpc64",
             target_arch = "riscv64",
-            target_arch = "sparc64")))]
+            target_arch = "sparc64",
+            target_arch = "e2k")))]
         __reserved: ::__syscall_ulong_t,
         pub sem_ctime: ::time_t,
         #[cfg(not(any(
@@ -85,7 +86,8 @@ s! {
             target_arch = "mips64r6",
             target_arch = "powerpc64",
             target_arch = "riscv64",
-            target_arch = "sparc64")))]
+            target_arch = "sparc64",
+            target_arch = "e2k")))]
         __reserved2: ::__syscall_ulong_t,
         pub sem_nsems: ::__syscall_ulong_t,
         __glibc_reserved3: ::__syscall_ulong_t,
@@ -95,7 +97,10 @@ s! {
 
 pub const __SIZEOF_PTHREAD_RWLOCKATTR_T: usize = 8;
 
+#[cfg(not(target_arch = "e2k"))]
 pub const O_LARGEFILE: ::c_int = 0;
+#[cfg(target_arch = "e2k")]
+pub const O_LARGEFILE: ::c_int = 0x8000;
 
 cfg_if! {
     if #[cfg(target_arch = "aarch64")] {
@@ -119,6 +124,9 @@ cfg_if! {
     } else if #[cfg(any(target_arch = "riscv64"))] {
         mod riscv64;
         pub use self::riscv64::*;
+    } else if #[cfg(any(target_arch = "e2k"))] {
+        mod e2k;
+        pub use self::e2k::*;
     } else if #[cfg(any(target_arch = "loongarch64"))] {
         mod loongarch64;
         pub use self::loongarch64::*;

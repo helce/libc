@@ -10,6 +10,7 @@ macro_rules! expand_align {
                           target_arch = "sparc64",
                           target_arch = "riscv64",
                           target_arch = "riscv32",
+                          target_arch = "e2k",
                           target_arch = "loongarch64",
                           all(target_arch = "aarch64",
                               any(target_env = "musl", target_env = "ohos"))))]
@@ -22,6 +23,7 @@ macro_rules! expand_align {
                               target_arch = "sparc64",
                               target_arch = "riscv64",
                               target_arch = "riscv32",
+                              target_arch = "e2k",
                               target_arch = "loongarch64",
                               all(target_arch = "aarch64",
                                   any(target_env = "musl", target_env = "ohos")))))]

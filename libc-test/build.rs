@@ -3280,6 +3280,7 @@ fn test_linux(target: &str) {
     let x86_64_gnux32 = target.contains("gnux32") && x86_64;
     let riscv64 = target.contains("riscv64");
     let uclibc = target.contains("uclibc");
+    let e2k = target.contains("e2k");
 
     let mut cfg = ctest_cfg();
     cfg.define("_GNU_SOURCE", None);
@@ -4228,7 +4229,7 @@ fn test_linux(target: &str) {
         (struct_ == "timex" && field.starts_with("__unused")) ||
         // FIXME: It now takes mode_t since glibc 2.31 on some targets.
         (struct_ == "ipc_perm" && field == "mode"
-            && ((x86_64 || i686 || arm || riscv64) && gnu || x86_64_gnux32)
+            && ((x86_64 || i686 || arm || riscv64 || e2k) && gnu || x86_64_gnux32)
         ) ||
         // the `u` field is in fact an anonymous union
         (gnu && struct_ == "ptrace_syscall_info" && (field == "u" || field == "pad")) ||
