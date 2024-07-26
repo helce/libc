@@ -3918,7 +3918,7 @@ fn test_linux(target: &str) {
             | "MFD_EXEC"
             | "MFD_NOEXEC_SEAL"
             | "SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV"
-                if sparc64 => true,
+                if sparc64 || e2k => true,
 
             // FIXME: Not currently available in headers on ARM and musl.
             "NETLINK_GET_STRICT_CHK" if arm || musl => true,
