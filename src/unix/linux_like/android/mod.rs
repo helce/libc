@@ -1347,6 +1347,7 @@ pub const IFF_LOWER_UP: ::c_int = 0x10000;
 pub const IFF_DORMANT: ::c_int = 0x20000;
 pub const IFF_ECHO: ::c_int = 0x40000;
 
+pub const PTHREAD_BARRIER_SERIAL_THREAD: ::c_int = -1;
 pub const PTHREAD_MUTEX_NORMAL: ::c_int = 0;
 pub const PTHREAD_MUTEX_RECURSIVE: ::c_int = 1;
 pub const PTHREAD_MUTEX_ERRORCHECK: ::c_int = 2;
@@ -1760,6 +1761,7 @@ pub const ST_NODIRATIME: ::c_ulong = 2048;
 pub const ST_RELATIME: ::c_ulong = 4096;
 
 pub const RTLD_NOLOAD: ::c_int = 0x4;
+pub const RTLD_NODELETE: ::c_int = 0x1000;
 
 pub const SEM_FAILED: *mut sem_t = 0 as *mut sem_t;
 

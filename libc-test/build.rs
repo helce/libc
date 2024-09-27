@@ -95,8 +95,7 @@ fn do_semver() {
     let target_env = env::var("CARGO_CFG_TARGET_ENV").unwrap();
 
     // `libc-test/semver` dir.
-    let mut semver_root = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
-    semver_root.push("semver");
+    let mut semver_root = PathBuf::from("semver");
 
     // NOTE: Windows has the same `family` as `os`, no point in including it
     // twice.
@@ -106,7 +105,10 @@ fn do_semver() {
     if family != os && os != "android" {
         process_semver_file(&mut output, &mut semver_root, &family);
     }
-    process_semver_file(&mut output, &mut semver_root, &vendor);
+    // We don't do semver for unknown targets.
+    if vendor != "unknown" {
+        process_semver_file(&mut output, &mut semver_root, &vendor);
+    }
     process_semver_file(&mut output, &mut semver_root, &os);
     let os_arch = format!("{}-{}", os, arch);
     process_semver_file(&mut output, &mut semver_root, &os_arch);
@@ -154,6 +156,9 @@ fn process_semver_file<W: Write, P: AsRef<Path>>(output: &mut W, path: &mut Path
 }
 
 fn main() {
+    // Avoid unnecessary re-building.
+    println!("cargo:rerun-if-changed=build.rs");
+
     do_cc();
     do_ctest();
     do_semver();
@@ -234,8 +239,11 @@ fn test_apple(target: &str) {
         "netinet/ip.h",
         "netinet/tcp.h",
         "netinet/udp.h",
+        "os/clock.h",
         "os/lock.h",
         "os/signpost.h",
+        // FIXME: Requires the macOS 14.4 SDK.
+        //"os/os_sync_wait_on_address.h",
         "poll.h",
         "pthread.h",
         "pthread_spis.h",
@@ -324,6 +332,9 @@ fn test_apple(target: &str) {
             return true;
         }
         match ty {
+            // FIXME: Requires the macOS 14.4 SDK.
+            "os_sync_wake_by_address_flags_t" | "os_sync_wait_on_address_flags_t" => true,
+
             _ => false,
         }
     });
@@ -342,6 +353,13 @@ fn test_apple(target: &str) {
 
             // FIXME: XCode 13.1 doesn't have it.
             "TIOCREMOTE" => true,
+
+            // FIXME: Requires the macOS 14.4 SDK.
+            "OS_SYNC_WAKE_BY_ADDRESS_NONE"
+            | "OS_SYNC_WAKE_BY_ADDRESS_SHARED"
+            | "OS_SYNC_WAIT_ON_ADDRESS_NONE"
+            | "OS_SYNC_WAIT_ON_ADDRESS_SHARED" => true,
+
             _ => false,
         }
     });
@@ -367,6 +385,15 @@ fn test_apple(target: &str) {
             // FIXME: Once the SDK get updated to Ventura's level
             "freadlink" | "mknodat" | "mkfifoat" => true,
 
+            // FIXME: Requires the macOS 14.4 SDK.
+            "os_sync_wake_by_address_any"
+            | "os_sync_wake_by_address_all"
+            | "os_sync_wake_by_address_flags_t"
+            | "os_sync_wait_on_address"
+            | "os_sync_wait_on_address_flags_t"
+            | "os_sync_wait_on_address_with_deadline"
+            | "os_sync_wait_on_address_with_timeout" => true,
+
             _ => false,
         }
     });
@@ -381,6 +408,9 @@ fn test_apple(target: &str) {
             ("ifreq", "ifr_ifru") => true,
             ("ifkpi", "ifk_data") => true,
             ("ifconf", "ifc_ifcu") => true,
+            // FIXME: this field has been incorporated into a resized `rmx_filler` array.
+            ("rt_metrics", "rmx_state") => true,
+            ("rt_metrics", "rmx_filler") => true,
             _ => false,
         }
     });
@@ -2281,6 +2311,12 @@ fn test_freebsd(target: &str) {
             // should've been used anywhere anyway.
             "TDF_UNUSED23" => true,
 
+            // Removed in FreeBSD 15
+            "TDF_CANSWAP" | "TDF_SWAPINREQ" => true,
+
+            // Unaccessible in FreeBSD 15
+            "TDI_SWAPPED" | "P_SWAPPINGOUT" | "P_SWAPPINGIN" => true,
+
             // Removed in FreeBSD 14 (git a6b55ee6be1)
             "IFF_KNOWSEPOCH" => true,
 
@@ -2476,6 +2512,9 @@ fn test_freebsd(target: &str) {
 
             // FIXME: Removed in FreeBSD 15:
             "LOCAL_CONNWAIT" if freebsd_ver >= Some(15) => true,
+
+            // FIXME: The values has been changed in FreeBSD 15:
+            "CLOCK_BOOTTIME" if Some(15) <= freebsd_ver => true,
 
             _ => false,
         }
@@ -4299,6 +4338,9 @@ fn test_linux(target: &str) {
 
             // FIXME: function pointers changed since Ubuntu 23.10
             "strtol" | "strtoll" | "strtoul" | "strtoull" | "fscanf" | "scanf" | "sscanf" => true,
+
+            // Added in musl 1.2.5
+            "preadv2" | "pwritev2" if musl => true,
 
             _ => false,
         }
