@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [0.2.160](https://github.com/helce/libc/compare/0.2.159...0.2.160) - 2024-09-27
+
+### Other
+
+- Fix "struct stat" on 32-bit FreeBSD 12+ ([#3939](https://github.com/helce/libc/pull/3939))
+
 ## [0.2.159](https://github.com/rust-lang/libc/compare/0.2.158...0.2.159) - 2024-09-24
 
 ### Added
