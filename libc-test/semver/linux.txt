@@ -3563,6 +3563,7 @@ j1939_filter
 jrand48
 key_t
 killpg
+klogctl
 labs
 lcong48
 lgetxattr
