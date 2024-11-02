@@ -205,6 +205,7 @@ fn test_apple(target: &str) {
         "errno.h",
         "execinfo.h",
         "fcntl.h",
+        "fnmatch.h",
         "getopt.h",
         "glob.h",
         "grp.h",
@@ -482,6 +483,7 @@ fn test_openbsd(target: &str) {
         "errno.h",
         "execinfo.h",
         "fcntl.h",
+        "fnmatch.h",
         "getopt.h",
         "libgen.h",
         "limits.h",
@@ -793,6 +795,7 @@ fn test_redox(target: &str) {
         "dlfcn.h",
         "errno.h",
         "fcntl.h",
+        "fnmatch.h",
         "grp.h",
         "limits.h",
         "locale.h",
@@ -852,6 +855,7 @@ fn test_solarish(target: &str) {
         "errno.h",
         "execinfo.h",
         "fcntl.h",
+        "fnmatch.h",
         "getopt.h",
         "glob.h",
         "grp.h",
@@ -1092,6 +1096,7 @@ fn test_netbsd(target: &str) {
         "elf.h",
         "errno.h",
         "fcntl.h",
+        "fnmatch.h",
         "getopt.h",
         "libgen.h",
         "limits.h",
@@ -1308,6 +1313,7 @@ fn test_dragonflybsd(target: &str) {
         "errno.h",
         "execinfo.h",
         "fcntl.h",
+        "fnmatch.h",
         "getopt.h",
         "glob.h",
         "grp.h",
@@ -1531,6 +1537,7 @@ fn test_wasi(target: &str) {
         "dirent.h",
         "errno.h",
         "fcntl.h",
+        "fnmatch.h",
         "langinfo.h",
         "limits.h",
         "locale.h",
@@ -1646,6 +1653,7 @@ fn test_android(target: &str) {
                "elf.h",
                "errno.h",
                "fcntl.h",
+               "fnmatch.h",
                "getopt.h",
                "grp.h",
                "ifaddrs.h",
@@ -2145,6 +2153,7 @@ fn test_freebsd(target: &str) {
                 "errno.h",
                 "execinfo.h",
                 "fcntl.h",
+                "fnmatch.h",
                 "getopt.h",
                 "glob.h",
                 "grp.h",
@@ -2338,6 +2347,9 @@ fn test_freebsd(target: &str) {
             // base system anyway.
             "CTL_MAXID" | "KERN_MAXID" | "HW_MAXID" | "USER_MAXID" => true,
 
+            // Deprecated and removed in FreeBSD 15.  It was never actually implemented.
+            "TCP_MAXPEAKRATE" => true,
+
             // FIXME: This is deprecated - remove in a couple of releases.
             // This was removed in FreeBSD 14 (git 1b4701fe1e8) and never
             // should've been used anywhere anyway.
@@ -2363,6 +2375,10 @@ fn test_freebsd(target: &str) {
             | "PRI_MAX_KERN" | "PSWP" | "PVM" | "PINOD" | "PRIBIO" | "PVFS" | "PZERO" | "PSOCK"
             | "PWAIT" | "PLOCK" | "PPAUSE" | "PRI_MIN_TIMESHARE" | "PUSER" | "PI_AV" | "PI_NET"
             | "PI_DISK" | "PI_TTY" | "PI_DULL" | "PI_SOFT" => true,
+
+            // This constant changed in FreeBSD 15 (git 3458bbd397783).  It was never intended to
+            // be stable, and probably shouldn't be bound by libc at all.
+            "RLIM_NLIMITS" => true,
 
             // This symbol changed in FreeBSD 14 (git 051e7d78b03), but the new
             // version should be safe to use on older releases.
@@ -2494,7 +2510,6 @@ fn test_freebsd(target: &str) {
 
             // Flags introduced in FreeBSD 14.
             "TCP_MAXUNACKTIME"
-            | "TCP_MAXPEAKRATE"
             | "TCP_IDLE_REDUCE"
             | "TCP_REMOTE_UDP_ENCAPS_PORT"
             | "TCP_DELACK"
@@ -2756,6 +2771,7 @@ fn test_emscripten(target: &str) {
                "dlfcn.h",
                "errno.h",
                "fcntl.h",
+               "fnmatch.h",
                "glob.h",
                "grp.h",
                "ifaddrs.h",
@@ -3024,6 +3040,7 @@ fn test_neutrino(target: &str) {
         "dlfcn.h",
         "sys/elf.h",
         "fcntl.h",
+        "fnmatch.h",
         "glob.h",
         "grp.h",
         "iconv.h",
@@ -3422,6 +3439,7 @@ fn test_linux(target: &str) {
                "dlfcn.h",
                "elf.h",
                "fcntl.h",
+               "fnmatch.h",
                "getopt.h",
                "glob.h",
                [gnu]: "gnu/libc-version.h",
@@ -3446,7 +3464,6 @@ fn test_linux(target: &str) {
                "netinet/ip.h",
                "netinet/tcp.h",
                "netinet/udp.h",
-               "netpacket/packet.h",
                "poll.h",
                "pthread.h",
                "pty.h",
@@ -3549,6 +3566,7 @@ fn test_linux(target: &str) {
         "linux/if_addr.h",
         "linux/if_alg.h",
         "linux/if_ether.h",
+        "linux/if_packet.h",
         "linux/if_tun.h",
         "linux/if_xdp.h",
         "linux/input.h",
@@ -3725,6 +3743,26 @@ fn test_linux(target: &str) {
         if (gnu && sparc64) && (ty == "ip_mreqn" || ty == "hwtstamp_config") {
             return true;
         }
+        // FIXME(https://github.com/rust-lang/rust/issues/43894): pass by value for structs that are not an even 32/64 bits on
+        // big-endian systems corrupts the value for unknown reasons.
+        if (sparc64 || ppc || ppc64 || s390x)
+            && (ty == "sockaddr_pkt"
+                || ty == "tpacket_auxdata"
+                || ty == "tpacket_hdr_variant1"
+                || ty == "tpacket_req3"
+                || ty == "tpacket_stats_v3"
+                || ty == "tpacket_req_u")
+        {
+            return true;
+        }
+        // FIXME: musl doesn't compile with `struct fanout_args` for unknown reasons.
+        if musl && ty == "fanout_args" {
+            return true;
+        }
+        if sparc64 && ty == "fanotify_event_info_error" {
+            return true;
+        }
+
         match ty {
             // These cannot be tested when "resolv.h" is included and are tested
             // in the `linux_elf.rs` file.
@@ -4458,7 +4496,21 @@ fn test_linux(target: &str) {
         // the `ifc_ifcu` field is an anonymous union
         (struct_ == "ifconf" && field == "ifc_ifcu") ||
         // glibc uses a single array `uregs` instead of individual fields.
-        (struct_ == "user_regs" && arm)
+        (struct_ == "user_regs" && arm) ||
+        // the `ifr_ifrn` field is an anonymous union
+        (struct_ == "iwreq" && field == "ifr_ifrn") ||
+        // the `key` field is a zero-sized array
+        (struct_ == "iw_encode_ext" && field == "key") ||
+        // the `tcpi_snd_rcv_wscale` map two bitfield fields stored in a u8
+        (struct_ == "tcp_info" && field == "tcpi_snd_rcv_wscale") ||
+        // the `tcpi_delivery_rate_app_limited` field is a bitfield on musl
+        (musl && struct_ == "tcp_info" && field == "tcpi_delivery_rate_app_limited") ||
+        // the `tcpi_fast_open_client_fail` field is a bitfield on musl
+        (musl && struct_ == "tcp_info" && field == "tcpi_fast_open_client_fail") ||
+        // either fsid_t or int[2] type
+        (struct_ == "fanotify_event_info_fid" && field == "fsid") ||
+        // `handle` is a VLA
+        (struct_ == "fanotify_event_info_fid" && field == "handle")
     });
 
     cfg.skip_roundtrip(move |s| match s {
@@ -4795,6 +4847,7 @@ fn test_haiku(target: &str) {
                "libutil.h",
                "link.h",
                "pty.h",
+               "stdlib.h",
                "stringlist.h",
                "sys/link_elf.h",
     }
