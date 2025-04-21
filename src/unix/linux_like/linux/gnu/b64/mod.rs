@@ -76,7 +76,8 @@ s! {
             target_arch = "powerpc64",
             target_arch = "riscv64",
             target_arch = "sparc64",
-            target_arch = "e2k")))]
+            target_arch = "e2k"
+        )))]
         __reserved: ::__syscall_ulong_t,
         pub sem_ctime: ::time_t,
         #[cfg(not(any(
@@ -87,7 +88,8 @@ s! {
             target_arch = "powerpc64",
             target_arch = "riscv64",
             target_arch = "sparc64",
-            target_arch = "e2k")))]
+            target_arch = "e2k"
+        )))]
         __reserved2: ::__syscall_ulong_t,
         pub sem_nsems: ::__syscall_ulong_t,
         __glibc_reserved3: ::__syscall_ulong_t,

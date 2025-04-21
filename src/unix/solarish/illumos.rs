@@ -1,10 +1,7 @@
-use exit_status;
-use NET_MAC_AWARE;
-use NET_MAC_AWARE_INHERIT;
-use PRIV_AWARE_RESET;
-use PRIV_DEBUG;
-use PRIV_PFEXEC;
-use PRIV_XPOLICY;
+use {
+    exit_status, NET_MAC_AWARE, NET_MAC_AWARE_INHERIT, PRIV_AWARE_RESET, PRIV_DEBUG, PRIV_PFEXEC,
+    PRIV_XPOLICY,
+};
 
 pub type lgrp_rsrc_t = ::c_int;
 pub type lgrp_affinity_t = ::c_int;
@@ -46,10 +43,7 @@ s! {
 }
 
 s_no_extra_traits! {
-    #[cfg_attr(any(
-        target_arch = "x86", target_arch = "x86_64"),
-        repr(packed(4))
-    )]
+    #[cfg_attr(any(target_arch = "x86", target_arch = "x86_64"), repr(packed(4)))]
     pub struct epoll_event {
         pub events: u32,
         pub u64: u64,
@@ -85,10 +79,10 @@ cfg_if! {
                     && self.ut_syslen == other.ut_syslen
                     && self.ut_pad == other.ut_pad
                     && self
-                    .ut_host
-                    .iter()
-                    .zip(other.ut_host.iter())
-                    .all(|(a,b)| a == b)
+                        .ut_host
+                        .iter()
+                        .zip(other.ut_host.iter())
+                        .all(|(a, b)| a == b)
             }
         }
 
@@ -130,8 +124,7 @@ cfg_if! {
 
         impl PartialEq for epoll_event {
             fn eq(&self, other: &epoll_event) -> bool {
-                self.events == other.events
-                    && self.u64 == other.u64
+                self.events == other.events && self.u64 == other.u64
             }
         }
         impl Eq for epoll_event {}

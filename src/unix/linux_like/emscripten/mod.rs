@@ -163,7 +163,7 @@ s! {
         pub sa_sigaction: ::sighandler_t,
         pub sa_mask: ::sigset_t,
         pub sa_flags: ::c_int,
-        pub sa_restorer: ::Option<extern fn()>,
+        pub sa_restorer: ::Option<extern "C" fn()>,
     }
 
     pub struct ipc_perm {
@@ -175,7 +175,7 @@ s! {
         pub mode: ::mode_t,
         pub __seq: ::c_int,
         __unused1: ::c_long,
-        __unused2: ::c_long
+        __unused2: ::c_long,
     }
 
     pub struct termios {
@@ -198,7 +198,7 @@ s! {
     }
 
     pub struct pthread_attr_t {
-        __size: [u32; 11]
+        __size: [u32; 11],
     }
 
     pub struct sigset_t {
@@ -252,7 +252,7 @@ s! {
     pub struct stack_t {
         pub ss_sp: *mut ::c_void,
         pub ss_flags: ::c_int,
-        pub ss_size: ::size_t
+        pub ss_size: ::size_t,
     }
 
     pub struct shmid_ds {
@@ -313,6 +313,32 @@ s! {
         pub updated: ::c_ulong,
         pub ha: [::c_uchar; ::MAX_ADDR_LEN],
     }
+
+    #[allow(missing_debug_implementations)]
+    #[repr(align(4))]
+    pub struct pthread_mutex_t {
+        size: [u8; ::__SIZEOF_PTHREAD_MUTEX_T],
+    }
+
+    #[repr(align(4))]
+    pub struct pthread_rwlock_t {
+        size: [u8; ::__SIZEOF_PTHREAD_RWLOCK_T],
+    }
+
+    #[repr(align(4))]
+    pub struct pthread_mutexattr_t {
+        size: [u8; ::__SIZEOF_PTHREAD_MUTEXATTR_T],
+    }
+
+    #[repr(align(4))]
+    pub struct pthread_rwlockattr_t {
+        size: [u8; ::__SIZEOF_PTHREAD_RWLOCKATTR_T],
+    }
+
+    #[repr(align(4))]
+    pub struct pthread_condattr_t {
+        size: [u8; ::__SIZEOF_PTHREAD_CONDATTR_T],
+    }
 }
 
 s_no_extra_traits! {
@@ -346,7 +372,19 @@ s_no_extra_traits! {
         pub mq_maxmsg: ::c_long,
         pub mq_msgsize: ::c_long,
         pub mq_curmsgs: ::c_long,
-        pad: [::c_long; 4]
+        pad: [::c_long; 4],
+    }
+
+    #[cfg_attr(target_pointer_width = "32", repr(align(4)))]
+    #[cfg_attr(target_pointer_width = "64", repr(align(8)))]
+    pub struct pthread_cond_t {
+        size: [u8; ::__SIZEOF_PTHREAD_COND_T],
+    }
+
+    #[allow(missing_debug_implementations)]
+    #[repr(align(8))]
+    pub struct max_align_t {
+        priv_: [f64; 3],
     }
 }
 
@@ -359,10 +397,10 @@ cfg_if! {
                     && self.d_reclen == other.d_reclen
                     && self.d_type == other.d_type
                     && self
-                    .d_name
-                    .iter()
-                    .zip(other.d_name.iter())
-                    .all(|(a,b)| a == b)
+                        .d_name
+                        .iter()
+                        .zip(other.d_name.iter())
+                        .all(|(a, b)| a == b)
             }
         }
         impl Eq for dirent {}
@@ -403,10 +441,10 @@ cfg_if! {
                     && self.freehigh == other.freehigh
                     && self.mem_unit == other.mem_unit
                     && self
-                    .__reserved
-                    .iter()
-                    .zip(other.__reserved.iter())
-                    .all(|(a,b)| a == b)
+                        .__reserved
+                        .iter()
+                        .zip(other.__reserved.iter())
+                        .all(|(a, b)| a == b)
             }
         }
         impl Eq for sysinfo {}
@@ -451,10 +489,10 @@ cfg_if! {
 
         impl PartialEq for mq_attr {
             fn eq(&self, other: &mq_attr) -> bool {
-                self.mq_flags == other.mq_flags &&
-                self.mq_maxmsg == other.mq_maxmsg &&
-                self.mq_msgsize == other.mq_msgsize &&
-                self.mq_curmsgs == other.mq_curmsgs
+                self.mq_flags == other.mq_flags
+                    && self.mq_maxmsg == other.mq_maxmsg
+                    && self.mq_msgsize == other.mq_msgsize
+                    && self.mq_curmsgs == other.mq_curmsgs
             }
         }
         impl Eq for mq_attr {}
@@ -474,6 +512,25 @@ cfg_if! {
                 self.mq_maxmsg.hash(state);
                 self.mq_msgsize.hash(state);
                 self.mq_curmsgs.hash(state);
+            }
+        }
+
+        impl PartialEq for pthread_cond_t {
+            fn eq(&self, other: &pthread_cond_t) -> bool {
+                self.size.iter().zip(other.size.iter()).all(|(a, b)| a == b)
+            }
+        }
+        impl Eq for pthread_cond_t {}
+        impl ::fmt::Debug for pthread_cond_t {
+            fn fmt(&self, f: &mut ::fmt::Formatter) -> ::fmt::Result {
+                f.debug_struct("pthread_cond_t")
+                    // FIXME: .field("size", &self.size)
+                    .finish()
+            }
+        }
+        impl ::hash::Hash for pthread_cond_t {
+            fn hash<H: ::hash::Hasher>(&self, state: &mut H) {
+                self.size.hash(state);
             }
         }
     }
@@ -768,17 +825,15 @@ pub const RTLD_DEFAULT: *mut ::c_void = 0i64 as *mut ::c_void;
 pub const RTLD_NODELETE: ::c_int = 0x1000;
 pub const RTLD_NOW: ::c_int = 0x2;
 
-align_const! {
-    pub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t = pthread_mutex_t {
-        size: [0; __SIZEOF_PTHREAD_MUTEX_T],
-    };
-    pub const PTHREAD_COND_INITIALIZER: pthread_cond_t = pthread_cond_t {
-        size: [0; __SIZEOF_PTHREAD_COND_T],
-    };
-    pub const PTHREAD_RWLOCK_INITIALIZER: pthread_rwlock_t = pthread_rwlock_t {
-        size: [0; __SIZEOF_PTHREAD_RWLOCK_T],
-    };
-}
+pub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t = pthread_mutex_t {
+    size: [0; __SIZEOF_PTHREAD_MUTEX_T],
+};
+pub const PTHREAD_COND_INITIALIZER: pthread_cond_t = pthread_cond_t {
+    size: [0; __SIZEOF_PTHREAD_COND_T],
+};
+pub const PTHREAD_RWLOCK_INITIALIZER: pthread_rwlock_t = pthread_rwlock_t {
+    size: [0; __SIZEOF_PTHREAD_RWLOCK_T],
+};
 
 pub const PTHREAD_MUTEX_NORMAL: ::c_int = 0;
 pub const PTHREAD_MUTEX_RECURSIVE: ::c_int = 1;
@@ -1356,16 +1411,12 @@ pub const PRIO_USER: ::c_int = 2;
 pub const SOMAXCONN: ::c_int = 128;
 
 f! {
-    pub fn CMSG_NXTHDR(mhdr: *const msghdr,
-                       cmsg: *const cmsghdr) -> *mut cmsghdr {
+    pub fn CMSG_NXTHDR(mhdr: *const msghdr, cmsg: *const cmsghdr) -> *mut cmsghdr {
         if ((*cmsg).cmsg_len as usize) < ::mem::size_of::<cmsghdr>() {
             return 0 as *mut cmsghdr;
         };
-        let next = (cmsg as usize +
-                    super::CMSG_ALIGN((*cmsg).cmsg_len as usize))
-            as *mut cmsghdr;
-        let max = (*mhdr).msg_control as usize
-            + (*mhdr).msg_controllen as usize;
+        let next = (cmsg as usize + super::CMSG_ALIGN((*cmsg).cmsg_len as usize)) as *mut cmsghdr;
+        let max = (*mhdr).msg_control as usize + (*mhdr).msg_controllen as usize;
         if (next.offset(1)) as usize > max {
             0 as *mut cmsghdr
         } else {
@@ -1380,16 +1431,14 @@ f! {
     }
 
     pub fn CPU_SET(cpu: usize, cpuset: &mut cpu_set_t) -> () {
-        let size_in_bits
-            = 8 * ::mem::size_of_val(&cpuset.bits[0]); // 32, 64 etc
+        let size_in_bits = 8 * ::mem::size_of_val(&cpuset.bits[0]); // 32, 64 etc
         let (idx, offset) = (cpu / size_in_bits, cpu % size_in_bits);
         cpuset.bits[idx] |= 1 << offset;
         ()
     }
 
     pub fn CPU_CLR(cpu: usize, cpuset: &mut cpu_set_t) -> () {
-        let size_in_bits
-            = 8 * ::mem::size_of_val(&cpuset.bits[0]); // 32, 64 etc
+        let size_in_bits = 8 * ::mem::size_of_val(&cpuset.bits[0]); // 32, 64 etc
         let (idx, offset) = (cpu / size_in_bits, cpu % size_in_bits);
         cpuset.bits[idx] &= !(1 << offset);
         ()
@@ -1465,8 +1514,6 @@ extern "C" {
         -> ::ssize_t;
     pub fn preadv(fd: ::c_int, iov: *const ::iovec, iovcnt: ::c_int, offset: ::off_t) -> ::ssize_t;
     pub fn dup3(oldfd: ::c_int, newfd: ::c_int, flags: ::c_int) -> ::c_int;
-    pub fn mkostemp(template: *mut ::c_char, flags: ::c_int) -> ::c_int;
-    pub fn mkostemps(template: *mut ::c_char, suffixlen: ::c_int, flags: ::c_int) -> ::c_int;
     pub fn nl_langinfo_l(item: ::nl_item, locale: ::locale_t) -> *mut ::c_char;
     pub fn accept4(
         fd: ::c_int,
@@ -1592,14 +1639,3 @@ extern "C" {
 // Alias <foo> to <foo>64 to mimic glibc's LFS64 support
 mod lfs64;
 pub use self::lfs64::*;
-
-cfg_if! {
-    if #[cfg(libc_align)] {
-        #[macro_use]
-        mod align;
-    } else {
-        #[macro_use]
-        mod no_align;
-    }
-}
-expand_align!();
