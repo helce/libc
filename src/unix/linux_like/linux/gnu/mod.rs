@@ -1310,7 +1310,8 @@ cfg_if! {
                  target_arch = "aarch64",
                  target_arch = "loongarch64",
                  target_arch = "riscv64",
-                 target_arch = "s390x"))] {
+                 target_arch = "s390x",
+                 target_arch = "e2k"))] {
         pub const TUNSETCARRIER: ::Ioctl = 0x400454e2;
         pub const TUNGETDEVNETNS: ::Ioctl = 0x54e3;
     } else if #[cfg(any(target_arch = "mips",
