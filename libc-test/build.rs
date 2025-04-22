@@ -4416,7 +4416,7 @@ fn test_linux(target: &str) {
         // FIXME(linux): `adjust_phase` requires >= 5.7 kernel headers
         // FIXME(linux): `max_phase_adj` requires >= 5.19 kernel headers
         // the rsv field shrunk when those fields got added, so is omitted too
-        (struct_ == "ptp_clock_caps" && (loongarch64 || sparc64) && (["adjust_phase", "max_phase_adj", "rsv"].contains(&field)))
+        (struct_ == "ptp_clock_caps" && (loongarch64 || sparc64 || e2k) && (["adjust_phase", "max_phase_adj", "rsv"].contains(&field)))
     });
 
     cfg.volatile_item(|i| {
@@ -4494,7 +4494,7 @@ fn test_linux(target: &str) {
         // FIXME(linux): `adjust_phase` requires >= 5.7 kernel headers
         // FIXME(linux): `max_phase_adj` requires >= 5.19 kernel headers
         // the rsv field shrunk when those fields got added, so is omitted too
-        (struct_ == "ptp_clock_caps" && (loongarch64 || sparc64) && (["adjust_phase", "max_phase_adj", "rsv"].contains(&field))) ||
+        (struct_ == "ptp_clock_caps" && (loongarch64 || sparc64 || e2k) && (["adjust_phase", "max_phase_adj", "rsv"].contains(&field))) ||
         // invalid application of 'sizeof' to incomplete type 'long unsigned int[]'
         (musl && struct_ == "mcontext_t" && field == "__extcontext" && loongarch64) ||
         // FIXME(#4121): a new field was added from `f_spare`
