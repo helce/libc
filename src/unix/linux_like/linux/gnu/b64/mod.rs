@@ -58,7 +58,7 @@ s! {
         pub msg_stime: crate::time_t,
         pub msg_rtime: crate::time_t,
         pub msg_ctime: crate::time_t,
-        __msg_cbytes: u64,
+        pub __msg_cbytes: u64,
         pub msg_qnum: crate::msgqnum_t,
         pub msg_qbytes: crate::msglen_t,
         pub msg_lspid: crate::pid_t,
@@ -78,7 +78,8 @@ s! {
             target_arch = "powerpc64",
             target_arch = "riscv64",
             target_arch = "sparc64",
-            target_arch = "e2k"
+            target_arch = "e2k",
+            target_arch = "s390x",
         )))]
         __reserved: crate::__syscall_ulong_t,
         pub sem_ctime: crate::time_t,
@@ -90,7 +91,8 @@ s! {
             target_arch = "powerpc64",
             target_arch = "riscv64",
             target_arch = "sparc64",
-            target_arch = "e2k"
+            target_arch = "e2k",
+            target_arch = "s390x",
         )))]
         __reserved2: crate::__syscall_ulong_t,
         pub sem_nsems: crate::__syscall_ulong_t,
