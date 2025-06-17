@@ -409,10 +409,12 @@ pub const O_EXCL: c_int = 128;
 pub const O_NOCTTY: c_int = 256;
 pub const O_TRUNC: c_int = 512;
 pub const O_NONBLOCK: c_int = 2048;
-pub const O_SYNC: c_int = 4096;
-pub const O_RSYNC: c_int = 4096;
-pub const O_DSYNC: c_int = 4096;
-pub const O_FSYNC: c_int = 4096;
+pub const O_NDELAY: c_int = 0x800;
+pub const O_DSYNC: c_int = 0x1000;
+pub const O_ASYNC: c_int = 0x2000;
+pub const O_SYNC: c_int = 0x101000;
+pub const O_RSYNC: c_int = 0x101000;
+pub const O_FSYNC: c_int = 0x101000;
 pub const O_NOATIME: c_int = 0o1000000;
 pub const O_CLOEXEC: c_int = 0o2000000;
 pub const O_PATH: c_int = 0o10000000;
@@ -535,9 +537,6 @@ pub const SIG_UNBLOCK: c_int = 0x01;
 
 pub const POLLWRNORM: c_short = 0x100;
 pub const POLLWRBAND: c_short = 0x200;
-
-pub const O_ASYNC: c_int = 0x2000;
-pub const O_NDELAY: c_int = 0x800;
 
 pub const EFD_NONBLOCK: c_int = 0x800;
 
