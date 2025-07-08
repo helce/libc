@@ -4409,9 +4409,11 @@ fn test_linux(target: &str) {
             // FIXME(linux): requires more recent kernel headers on CI
             "SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV" if sparc64 => true,
 
-            // FIXME(linux): requires kernel 6.3
+            // FIXME(linux): requires more recent kernel headers on CI
             | "MFD_EXEC"
             | "MFD_NOEXEC_SEAL"
+            | "SO_PASSPIDFD"
+            | "SO_PEERPIDFD"
                 if e2k => true,
 
             // FIXME(linux): Not currently available in headers on ARM and musl.

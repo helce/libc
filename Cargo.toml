@@ -62,6 +62,7 @@ targets = [
     "e2k16c-unknown-linux-gnu",
     "e2k2c3-unknown-linux-gnu",
     "e2k48c-unknown-linux-gnu",
+    "e2k8v7-unknown-linux-gnu",
     # FIXME(hexagon): excluded due to duplicate symbol errors
     # "hexagon-unknown-linux-musl",
     "i586-unknown-linux-gnu",
