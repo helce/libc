@@ -4464,6 +4464,10 @@ fn test_linux(target: &str) {
             | "MFD_NOEXEC_SEAL"
             | "SO_PASSPIDFD"
             | "SO_PEERPIDFD"
+            | "PR_GET_MDWE"
+            | "PR_MDWE_NO_INHERIT"
+            | "PR_MDWE_REFUSE_EXEC_GAIN"
+            | "PR_SET_MDWE"
                 if e2k => true,
 
             // FIXME(linux): Not currently available in headers on ARM and musl.
