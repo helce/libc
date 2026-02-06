@@ -4912,6 +4912,8 @@ fn test_linux(target: &str) {
     });
 
     cfg.skip_field(move |struct_, field| {
+        // this is nested anonymous struct
+        (struct_ == "extra_ucontext" && field == "aad" && e2k) ||
         // this is actually a union on linux, so we can't represent it well and
         // just insert some padding.
         (struct_ == "siginfo_t" && field == "_pad") ||

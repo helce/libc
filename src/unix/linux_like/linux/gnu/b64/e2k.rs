@@ -294,6 +294,10 @@ s! {
         pub ddmcr1: c_ulonglong,
         pub ddmar2: c_ulonglong,
         pub ddmar3: c_ulonglong,
+        pub dimcr1: c_ulonglong,
+        pub dimar2: c_ulonglong,
+        pub dimar3: c_ulonglong,
+        pub rndpr: c_ulonglong,
     }
 
     pub struct user_pt_regs {
@@ -358,6 +362,25 @@ s! {
         pub ctpr3_hi: c_ulonglong,
         pub chain_stack_offset: c_ulonglong,
         pub proc_stack_offset: c_ulonglong,
+        pub bgr: c_uint,
+        pub g: [c_ulonglong; 16],
+        pub gtag: [c_uchar; 16],
+        pub gext: [c_ulonglong; 16],
+        pub gext_tag: [c_uchar; 16],
+        pub lsr: c_ulonglong,
+        pub ilcr: c_ulonglong,
+        pub lsr1: c_ulonglong,
+        pub ilcr1: c_ulonglong,
+        pub aad: [c_ulonglong; 64],
+        pub aaind: [c_ulonglong; 16],
+        pub aaincr: [c_ulonglong; 8],
+        pub aaldi: [c_ulonglong; 64],
+        pub aaldv: c_ulonglong,
+        pub aalda: [c_ulonglong; 64],
+        pub aaldm: c_ulonglong,
+        pub aasr: c_ulonglong,
+        pub aafstr: c_ulonglong,
+        pub aasti: [c_ulonglong; 16],
     }
 
     pub struct ucontext_t {
