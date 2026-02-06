@@ -1149,7 +1149,7 @@ extern "C" {
     pub fn setcontext(ucp: *const ucontext_t) -> c_int;
     pub fn swapcontext(uocp: *mut ucontext_t, ucp: *const ucontext_t) -> c_int;
     pub fn makecontext_e2k(ucp: *mut ucontext_t, func: extern "C" fn(), argc: c_int, ...) -> c_int;
-    pub fn freecontext_e2k(ucp: *mut ucontext_t);
+    pub fn freecontext_e2k(ucp: *mut ucontext_t) -> c_int;
 }
 
 extern "C" {
