@@ -4469,6 +4469,8 @@ fn test_linux(target: &str) {
             | "PR_MDWE_NO_INHERIT"
             | "PR_MDWE_REFUSE_EXEC_GAIN"
             | "PR_SET_MDWE"
+            | "PACKET_VNET_HDR_SZ"
+            | "PACKET_FANOUT_FLAG_IGNORE_OUTGOING"
                 if e2k => true,
 
             // FIXME(linux): Not currently available in headers on ARM and musl.
@@ -4905,7 +4907,7 @@ fn test_linux(target: &str) {
     cfg.skip_struct_field(move |struct_, field| {
         let struct_ = struct_.ident();
         let field = field.ident();
-        // this is nested anonymous struct
+        // the `aad` field is an anonymous struct
         (struct_ == "extra_ucontext" && field == "aad" && e2k) ||
         // this is actually a union on linux, so we can't represent it well and
         // just insert some padding.
