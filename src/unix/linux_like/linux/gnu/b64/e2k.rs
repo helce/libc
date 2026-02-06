@@ -59,7 +59,6 @@ s! {
         pub si_signo: c_int,
         pub si_errno: c_int,
         pub si_code: c_int,
-        pub __pad0: c_int,
         #[doc(hidden)]
         #[deprecated(
             since = "0.2.54",
@@ -67,7 +66,8 @@ s! {
                 https://github.com/rust-lang/libc/pull/1316 if you're using \
                 this field"
         )]
-        pub _pad: [c_int; 28],
+        pub _pad: [c_int; 29],
+        _align: [u64; 0],
     }
 
     pub struct stack_t {
@@ -79,7 +79,7 @@ s! {
     pub struct stat {
         pub st_dev: crate::dev_t,
         pub st_ino: crate::ino_t,
-        __pad1: c_uint,
+        __pad1: Padding<c_uint>,
         pub st_mode: crate::mode_t,
         pub st_nlink: crate::nlink_t,
         pub st_uid: crate::uid_t,
@@ -100,7 +100,7 @@ s! {
     pub struct stat64 {
         pub st_dev: crate::dev_t,
         pub st_ino: crate::ino64_t,
-        __pad1: c_uint,
+        __pad1: Padding<c_uint>,
         pub st_mode: crate::mode_t,
         pub st_nlink: crate::nlink_t,
         pub st_uid: crate::uid_t,
@@ -408,11 +408,11 @@ s! {
         pub cuid: crate::uid_t,
         pub cgid: crate::gid_t,
         pub mode: c_ushort,
-        __pad1: c_ushort,
+        __pad1: Padding<c_ushort>,
         pub __seq: c_ushort,
-        __pad2: c_ushort,
-        __unused1: c_ulong,
-        __unused2: c_ulong,
+        __pad2: Padding<c_ushort>,
+        __unused1: Padding<c_ulong>,
+        __unused2: Padding<c_ulong>,
     }
 
     pub struct shmid_ds {
@@ -424,8 +424,8 @@ s! {
         pub shm_cpid: crate::pid_t,
         pub shm_lpid: crate::pid_t,
         pub shm_nattch: crate::shmatt_t,
-        __unused4: c_ulong,
-        __unused5: c_ulong,
+        __unused4: Padding<c_ulong>,
+        __unused5: Padding<c_ulong>,
     }
 }
 
