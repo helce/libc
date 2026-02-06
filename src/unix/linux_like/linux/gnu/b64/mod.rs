@@ -81,7 +81,7 @@ s! {
             target_arch = "e2k",
             target_arch = "s390x",
         )))]
-        __reserved: crate::__syscall_ulong_t,
+        __reserved: Padding<crate::__syscall_ulong_t>,
         pub sem_ctime: crate::time_t,
         #[cfg(not(any(
             target_arch = "aarch64",
@@ -94,7 +94,7 @@ s! {
             target_arch = "e2k",
             target_arch = "s390x",
         )))]
-        __reserved2: crate::__syscall_ulong_t,
+        __reserved2: Padding<crate::__syscall_ulong_t>,
         pub sem_nsems: crate::__syscall_ulong_t,
         __glibc_reserved3: crate::__syscall_ulong_t,
         __glibc_reserved4: crate::__syscall_ulong_t,
