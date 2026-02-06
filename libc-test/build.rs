@@ -4441,7 +4441,7 @@ fn test_linux(target: &str) {
             }
 
             // FIXME(linux): requires more recent kernel headers on CI
-            | "MFD_EXEC"
+            "MFD_EXEC"
             | "MFD_NOEXEC_SEAL"
             | "SO_PASSPIDFD"
             | "SO_PEERPIDFD"
@@ -4451,7 +4451,10 @@ fn test_linux(target: &str) {
             | "PR_SET_MDWE"
             | "PACKET_VNET_HDR_SZ"
             | "PACKET_FANOUT_FLAG_IGNORE_OUTGOING"
-                if e2k => true,
+                if e2k =>
+            {
+                true
+            }
 
             // Skip as this signal codes and trap reasons need newer headers
             "TRAP_PERF" => true,
