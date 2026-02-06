@@ -346,6 +346,11 @@ s! {
         pub upsr: c_ulonglong,
     }
 
+    pub struct __c_anonymous_aad {
+        pub lo: c_ulonglong,
+        pub hi: c_ulonglong,
+    }
+
     pub struct extra_ucontext {
         pub sizeof_extra_uc: c_int,
         pub curr_cnt: c_int,
@@ -371,7 +376,7 @@ s! {
         pub ilcr: c_ulonglong,
         pub lsr1: c_ulonglong,
         pub ilcr1: c_ulonglong,
-        pub aad: [c_ulonglong; 64],
+        pub aad: [__c_anonymous_aad; 32],
         pub aaind: [c_ulonglong; 16],
         pub aaincr: [c_ulonglong; 8],
         pub aaldi: [c_ulonglong; 64],
