@@ -1642,6 +1642,7 @@ MAP_TYPE
 MAXTTL
 MAX_ADDR_LEN
 MAX_IPOPTLEN
+MAX_LINKS
 MCAST_BLOCK_SOURCE
 MCAST_EXCLUDE
 MCAST_INCLUDE
@@ -4086,6 +4087,7 @@ madvise
 major
 makedev
 memalign
+membarrier_cmd
 memmem
 memrchr
 mincore
@@ -4129,6 +4131,9 @@ nice
 nl_item
 nl_langinfo
 nl_langinfo_l
+nl_mmap_hdr
+nl_mmap_req
+nl_pktinfo
 nlattr
 nlmsgerr
 nlmsghdr

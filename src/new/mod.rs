@@ -110,7 +110,7 @@ cfg_if! {
         // pub(crate) use redox::*;
     } else if #[cfg(target_os = "rtems")] {
         mod rtems;
-        pub(crate) use rtems::*;
+        // pub(crate) use rtems::*;
     } else if #[cfg(target_os = "solaris")] {
         mod solaris;
         pub(crate) use solaris::*;
@@ -181,6 +181,8 @@ cfg_if! {
         pub use linux::can::raw::*;
         pub use linux::can::*;
         pub use linux::keyctl::*;
+        pub use linux::membarrier::*;
+        pub use linux::netlink::*;
         #[cfg(target_env = "gnu")]
         pub use net::route::*;
     } else if #[cfg(target_vendor = "apple")] {
@@ -201,6 +203,9 @@ cfg_if! {
         pub use utmpx_::*;
     } else if #[cfg(target_os = "openbsd")] {
         pub use sys::ipc::*;
+    } else if #[cfg(target_os = "nto")] {
+        pub use net::bpf::*;
+        pub use net::if_::*;
     }
 }
 

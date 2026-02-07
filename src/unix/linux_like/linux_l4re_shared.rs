@@ -954,7 +954,7 @@ pub const PTHREAD_PROCESS_PRIVATE: c_int = 0;
 pub const PTHREAD_PROCESS_SHARED: c_int = 1;
 pub const PTHREAD_INHERIT_SCHED: c_int = 0;
 pub const PTHREAD_EXPLICIT_SCHED: c_int = 1;
-#[cfg(not(target_env = "uclibc"))]
+#[cfg(not(all(target_os = "l4re", target_env = "uclibc")))]
 pub const __SIZEOF_PTHREAD_COND_T: usize = 48;
 
 // netinet/in.h
@@ -1215,12 +1215,6 @@ cfg_if! {
         pub const MFD_HUGE_16GB: c_uint = 0x88000000;
         pub const MFD_HUGE_MASK: c_uint = 63;
         pub const MFD_HUGE_SHIFT: c_uint = 26;
-
-        pub const NLMSG_NOOP: c_int = 0x1;
-        pub const NLMSG_ERROR: c_int = 0x2;
-        pub const NLMSG_DONE: c_int = 0x3;
-        pub const NLMSG_OVERRUN: c_int = 0x4;
-        pub const NLMSG_MIN_TYPE: c_int = 0x10;
     }
 }
 
@@ -1497,15 +1491,32 @@ f! {
         if ((*cmsg).cmsg_len as usize) < size_of::<crate::cmsghdr>() {
             return core::ptr::null_mut::<crate::cmsghdr>();
         }
-        let next =
-            (cmsg as usize + super::CMSG_ALIGN((*cmsg).cmsg_len as usize)) as *mut crate::cmsghdr;
-        let max = (*mhdr).msg_control as usize + (*mhdr).msg_controllen as usize;
-        if (next.wrapping_offset(1)) as usize > max
-            || next as usize + super::CMSG_ALIGN((*next).cmsg_len as usize) > max
-        {
+
+        // FIXME(msrv): `.wrapping_byte_add()` stabilized in 1.75
+        let next_cmsg = cmsg
+            .cast::<u8>()
+            .wrapping_add(super::CMSG_ALIGN((*cmsg).cmsg_len as usize))
+            .cast::<crate::cmsghdr>();
+
+        // In case the addition wrapped. `next_addr > max_addr`
+        // would otherwise not work as intended.
+        if (next_cmsg as usize) < (cmsg as usize) {
+            return core::ptr::null_mut();
+        }
+
+        let mut max_addr = (*mhdr).msg_control as usize + (*mhdr).msg_controllen as usize;
+
+        if cfg!(any(target_env = "musl", target_env = "ohos")) {
+            // musl and some of its descendants do `>= max_addr`
+            // comparisons in the if statement below.
+            // https://www.openwall.com/lists/musl/2025/12/27/1
+            max_addr -= 1;
+        }
+
+        if next_cmsg as usize + size_of::<crate::cmsghdr>() > max_addr {
             core::ptr::null_mut::<crate::cmsghdr>()
         } else {
-            next
+            next_cmsg as *mut crate::cmsghdr
         }
     }
 
