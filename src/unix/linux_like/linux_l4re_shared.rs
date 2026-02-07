@@ -812,6 +812,7 @@ pub const EM_OR1K: u16 = 92;
 #[cfg(not(target_env = "uclibc"))]
 pub const EM_ARC_A5: u16 = 93;
 pub const EM_XTENSA: u16 = 94;
+pub const EM_MCST_ELBRUS: u16 = 175;
 pub const EM_AARCH64: u16 = 183;
 pub const EM_TILEPRO: u16 = 188;
 pub const EM_TILEGX: u16 = 191;
@@ -1386,7 +1387,10 @@ pub const UDP_NO_CHECK6_TX: c_int = 101;
 pub const UDP_NO_CHECK6_RX: c_int = 102;
 
 // include/uapi/asm-generic/mman-common.h
+#[cfg(not(target_arch = "e2k"))]
 pub const MAP_FIXED_NOREPLACE: c_int = 0x100000;
+#[cfg(target_arch = "e2k")]
+pub const MAP_FIXED_NOREPLACE: c_int = 0x400000;
 pub const MLOCK_ONFAULT: c_uint = 0x01;
 
 pub const REG_EXTENDED: c_int = 1;
