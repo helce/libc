@@ -4263,6 +4263,9 @@ fn test_linux(target: &str) {
             // FIXME(musl): New fields in newer versions
             "utmpx" if !old_musl => true,
 
+            // FIXME(linux): requires more recent kernel headers on e2k
+            "ptrace_sud_config" if e2k => true,
+
             _ => false,
         }
     });
@@ -4440,7 +4443,7 @@ fn test_linux(target: &str) {
                 true
             }
 
-            // FIXME(linux): requires more recent kernel headers on CI
+            // FIXME(linux): requires more recent kernel headers on e2k
             "MFD_EXEC"
             | "MFD_NOEXEC_SEAL"
             | "SO_PASSPIDFD"
@@ -4451,6 +4454,15 @@ fn test_linux(target: &str) {
             | "PR_SET_MDWE"
             | "PACKET_VNET_HDR_SZ"
             | "PACKET_FANOUT_FLAG_IGNORE_OUTGOING"
+            | "TUN_F_USO4"
+            | "TUN_F_USO6"
+            | "SOF_TIMESTAMPING_OPT_ID_TCP"
+            | "ALG_SET_KEY_BY_KEY_SERIAL"
+            | "FAN_RESPONSE_INFO_NONE"
+            | "FAN_RESPONSE_INFO_AUDIT_RULE"
+            | "FAN_INFO"
+            | "MOVE_MOUNT_BENEATH"
+            | "NFT_MSG_MAX"
                 if e2k =>
             {
                 true
