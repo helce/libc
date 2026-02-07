@@ -1646,6 +1646,10 @@ extern "C" {
         link_name = "cfgetispeed@GLIBC_2.0"
     )]
     #[cfg_attr(
+        all(target_os = "linux", target_env = "gnu", target_arch = "e2k"),
+        link_name = "cfgetispeed@GLIBC_2.2"
+    )]
+    #[cfg_attr(
         all(
             target_os = "linux",
             target_env = "gnu",
@@ -1737,6 +1741,10 @@ extern "C" {
     #[cfg_attr(
         all(target_os = "linux", target_env = "gnu", target_arch = "mips64"),
         link_name = "cfgetospeed@GLIBC_2.0"
+    )]
+    #[cfg_attr(
+        all(target_os = "linux", target_env = "gnu", target_arch = "e2k"),
+        link_name = "cfgetospeed@GLIBC_2.2"
     )]
     #[cfg_attr(
         all(
@@ -1832,6 +1840,10 @@ extern "C" {
         link_name = "cfsetispeed@GLIBC_2.0"
     )]
     #[cfg_attr(
+        all(target_os = "linux", target_env = "gnu", target_arch = "e2k"),
+        link_name = "cfsetispeed@GLIBC_2.2"
+    )]
+    #[cfg_attr(
         all(
             target_os = "linux",
             target_env = "gnu",
@@ -1923,6 +1935,10 @@ extern "C" {
     #[cfg_attr(
         all(target_os = "linux", target_env = "gnu", target_arch = "mips64"),
         link_name = "cfsetospeed@GLIBC_2.0"
+    )]
+    #[cfg_attr(
+        all(target_os = "linux", target_env = "gnu", target_arch = "e2k"),
+        link_name = "cfsetospeed@GLIBC_2.2"
     )]
     #[cfg_attr(
         all(
@@ -2305,6 +2321,10 @@ cfg_if! {
             #[cfg_attr(
                 all(target_os = "linux", target_env = "gnu", target_arch = "mips64"),
                 link_name = "cfsetspeed@GLIBC_2.0"
+            )]
+            #[cfg_attr(
+                all(target_os = "linux", target_env = "gnu", target_arch = "e2k"),
+                link_name = "cfsetspeed@GLIBC_2.2"
             )]
             #[cfg_attr(
                 all(
