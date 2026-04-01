@@ -1521,6 +1521,8 @@ fn test_netbsd(target: &str) {
             ("ifreq", "ifr_ifru") => true,
             ("utmpx", "ut_exit") => true,
             ("posix_spawn_file_actions_entry_t", "fae_data") => true,
+            ("kinfo_pcb", "ki_s") => true,
+            ("kinfo_pcb", "ki_d") => true,
 
             _ => false,
         }
@@ -3817,6 +3819,7 @@ fn test_linux(target: &str) {
     }
 
     let arm = target.contains("arm");
+    let eabihf = target.contains("eabihf");
     let aarch64 = target.contains("aarch64");
     let i686 = target.contains("i686");
     let ppc = target.contains("powerpc");
@@ -3831,6 +3834,7 @@ fn test_linux(target: &str) {
     let gnueabihf = target.contains("gnueabihf");
     let x86_64_gnux32 = target.contains("gnux32") && x86_64;
     let riscv64 = target.contains("riscv64");
+    let hexagon = target.contains("hexagon");
     let loongarch64 = target.contains("loongarch64");
     let wasm32 = target.contains("wasm32");
     let uclibc = target.contains("uclibc");
@@ -3846,9 +3850,9 @@ fn test_linux(target: &str) {
     let old_musl = musl && !musl_v1_2_3;
 
     let mut cfg = ctest_cfg();
-    if (musl_v1_2_3 || loongarch64) && musl {
+    if (musl_v1_2_3 || loongarch64 || hexagon) && musl {
         cfg.cfg("musl_v1_2_3", None);
-        if arm || ppc32 || x86_32 || mips32 {
+        if arm || hexagon || ppc32 || x86_32 || mips32 {
             cfg.cfg("musl32_time64", None);
             cfg.cfg("linux_time_bits64", None);
         }
@@ -4672,6 +4676,16 @@ fn test_linux(target: &str) {
             // FIXME(linux):  Requires >= 6.16 kernel headers.
             "PTRACE_SET_SYSCALL_INFO" => true,
 
+            // FIXME(linux): Requires >= 6.13 kernel headers.
+            "AT_HANDLE_CONNECTABLE" => true,
+
+            // FIXME(linux): Requires >= 6.12 kernel headers.
+            "AT_HANDLE_MNT_ID_UNIQUE" => true,
+
+            // FIXME(musl): This value is not yet in musl.
+            // eabihf targets are tested using an older version of glibc
+            "AT_HANDLE_FID" if musl || eabihf => true,
+
             _ => false,
         }
     });
@@ -4930,6 +4944,7 @@ fn test_linux(target: &str) {
             ("bcm_msg_head", "frames") => true,
             // FAM
             ("af_alg_iv", "iv") => true,
+            ("file_handle", "f_handle") if musl => true,
             // FIXME(ctest): ctest does not translate the rust code which computes the padding size
             ("pthread_cond_t", "__padding") if l4re => true,
             _ => false,
