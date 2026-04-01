@@ -4684,7 +4684,7 @@ fn test_linux(target: &str) {
 
             // FIXME(musl): This value is not yet in musl.
             // eabihf targets are tested using an older version of glibc
-            "AT_HANDLE_FID" if musl || eabihf => true,
+            "AT_HANDLE_FID" if e2k || musl || eabihf => true,
 
             _ => false,
         }
