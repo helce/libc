@@ -4248,7 +4248,7 @@ fn test_linux(target: &str) {
             // https://github.com/torvalds/linux/commit/341ac980eab90ac1f6c22ee9f9da83ed9604d899
             // The previous version of the struct was removed in 6.11 due to a bug.
             // https://github.com/torvalds/linux/commit/32654bbd6313b4cfc82297e6634fa9725c3c900f
-            "xdp_umem_reg" if musl || pointer_width == 32 => true,
+            "xdp_umem_reg" if musl || e2k || pointer_width == 32 => true,
 
             // FIXME(1.0,linux): A new field was added to `xsk_tx_metadata_request` in linux 6.15.
             // https://github.com/torvalds/linux/commit/ca4419f15abd19ba8be1e109661b60f9f5b6c9f0
@@ -4594,7 +4594,7 @@ fn test_linux(target: &str) {
             }
 
             // FIXME(linux32): Requires >= 6.6 kernel headers.
-            "XDP_USE_SG" | "XDP_PKT_CONTD" if pointer_width == 32 => true,
+            "XDP_USE_SG" | "XDP_PKT_CONTD" if e2k || pointer_width == 32 => true,
 
             // FIXME(linux): Missing only on this platform for some reason
             "PR_MDWE_NO_INHERIT" if gnueabihf => true,
@@ -4605,7 +4605,7 @@ fn test_linux(target: &str) {
             | "XDP_TXMD_FLAGS_TIMESTAMP"
             | "XDP_TXMD_FLAGS_CHECKSUM"
             | "XDP_TX_METADATA"
-                if musl || pointer_width == 32 =>
+                if musl || e2k || pointer_width == 32 =>
             {
                 true
             }
