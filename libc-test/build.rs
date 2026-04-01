@@ -2161,9 +2161,6 @@ fn test_android(target: &str) {
             // Needs a newer Android SDK for the definition
             "P_PIDFD" => true,
 
-            // Requires Linux kernel 5.6
-            "VMADDR_CID_LOCAL" => true,
-
             // FIXME(android): conflicts with standard C headers and is tested in
             // `linux_termios.rs` below:
             "BOTHER" => true,
@@ -2172,27 +2169,9 @@ fn test_android(target: &str) {
 
             // is a private value for kernel usage normally
             "FUSE_SUPER_MAGIC" => true,
-            // linux 5.12 min
-            "MPOL_F_NUMA_BALANCING" => true,
 
             // GRND_INSECURE was added in platform-tools-30.0.0
             "GRND_INSECURE" => true,
-
-            // kernel 5.10 minimum required
-            "MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ" | "MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ" => true,
-
-            // kernel 5.18 minimum
-            | "MADV_COLD"
-            | "MADV_DONTNEED_LOCKED"
-            | "MADV_PAGEOUT"
-            | "MADV_POPULATE_READ"
-            | "MADV_POPULATE_WRITE" => true,
-
-            // kernel 5.6 minimum required
-            "IPPROTO_MPTCP" | "IPPROTO_ETHERNET" => true,
-
-            // kernel 6.2 minimum
-            "TUN_F_USO4" | "TUN_F_USO6" | "IFF_NO_CARRIER" => true,
 
             // FIXME(android): NDK r22 minimum required
             | "FDB_NOTIFY_BIT"
@@ -3810,6 +3789,13 @@ fn config_gnu_bits(target: &str, cfg: &mut ctest::TestGenerator) {
 fn test_linux(target: &str) {
     assert!(target.contains("linux") || target.contains("l4re"));
 
+    // FIXME(linux32): Some 32 bit targets use old kernel headers because newer distros enforce 64
+    // bit time. Use this to avoid skipping tests also on 64 bit targets.
+    let pointer_width = env::var("CARGO_CFG_TARGET_POINTER_WIDTH")
+        .unwrap_or_default()
+        .parse::<usize>()
+        .unwrap_or_default();
+
     // target_os
     let linux = target.contains("linux");
     let l4re = target.contains("l4re");
@@ -3837,6 +3823,7 @@ fn test_linux(target: &str) {
     let ppc64 = target.contains("powerpc64");
     let ppc32 = ppc && !ppc64;
     let s390x = target.contains("s390x");
+    let sparc = target.contains("sparc");
     let sparc64 = target.contains("sparc64");
     let x32 = target.contains("x32");
     let x86_32 = target.contains("i686");
@@ -4006,6 +3993,7 @@ fn test_linux(target: &str) {
             (gnu, "linux/aio_abi.h"),
             "linux/can.h",
             "linux/can/bcm.h",
+            "linux/can/error.h",
             "linux/can/raw.h",
             "linux/can/j1939.h",
             "linux/cn_proc.h",
@@ -4118,9 +4106,9 @@ fn test_linux(target: &str) {
     cfg.rename_struct_field(move |struct_, field| {
         match (struct_.ident(), field.ident()) {
             // Our stat *_nsec fields normally don't actually exist but are part
-            // of a timeval struct - this is fixed in musl_v1_2_3
+            // of a timeval struct
             ("stat" | "statfs" | "statvfs" | "stat64" | "statfs64" | "statvfs64", f)
-                if !musl_v1_2_3 && f.ends_with("_nsec") =>
+                if f.ends_with("_nsec") =>
             {
                 Some(f.replace("e_nsec", ".tv_nsec"))
             }
@@ -4185,7 +4173,7 @@ fn test_linux(target: &str) {
     cfg.skip_struct(move |struct_| {
         let ty = struct_.ident();
 
-        // FIXME(linux): CI has old headers
+        // FIXME(linux): Requires >= 6.12 kernel headers. CI has old headers
         if ty == "ptp_sys_offset_extended" {
             return true;
         }
@@ -4255,14 +4243,17 @@ fn test_linux(target: &str) {
             "sctp_initmsg" | "sctp_sndrcvinfo" | "sctp_sndinfo" | "sctp_rcvinfo"
             | "sctp_nxtinfo" | "sctp_prinfo" | "sctp_authinfo" => true,
 
-            // FIXME(linux): Requires >= 6.8 kernel headers.
-            // A field was added in 6.8.
+            // FIXME(musl): A field was added in linux 6.8, not yet in musl
+            // FIXME(linux32): A field was added in linux 6.8
             // https://github.com/torvalds/linux/commit/341ac980eab90ac1f6c22ee9f9da83ed9604d899
             // The previous version of the struct was removed in 6.11 due to a bug.
             // https://github.com/torvalds/linux/commit/32654bbd6313b4cfc82297e6634fa9725c3c900f
-            "xdp_umem_reg" => true,
+            "xdp_umem_reg" if musl || pointer_width == 32 => true,
 
-            // FIXME(linux): Requires >= 6.8 kernel headers.
+            // FIXME(1.0,linux): A new field was added to `xsk_tx_metadata_request` in linux 6.15.
+            // https://github.com/torvalds/linux/commit/ca4419f15abd19ba8be1e109661b60f9f5b6c9f0
+            // When updating, consider giving the `__c_anonymous_` prefix to the enum variants
+            // `xsk_tx_metadata_request` and `xsk_tx_metadata_completion`.
             "xsk_tx_metadata" | "xsk_tx_metadata_request" | "xsk_tx_metadata_completion" => true,
 
             // A new field was added in kernel 5.4, this is the old version for backwards compatibility.
@@ -4602,17 +4593,22 @@ fn test_linux(target: &str) {
                 true
             }
 
-            // FIXME(linux): Requires >= 6.6 kernel headers.
-            "XDP_USE_SG" | "XDP_PKT_CONTD" => true,
+            // FIXME(linux32): Requires >= 6.6 kernel headers.
+            "XDP_USE_SG" | "XDP_PKT_CONTD" if pointer_width == 32 => true,
 
             // FIXME(linux): Missing only on this platform for some reason
             "PR_MDWE_NO_INHERIT" if gnueabihf => true,
 
-            // FIXME(linux): Requires >= 6.8 kernel headers.
+            // FIXME(musl): Not yet in musl
+            // FIXME(linux32): Requires >= 6.8 kernel headers.
             "XDP_UMEM_TX_SW_CSUM"
             | "XDP_TXMD_FLAGS_TIMESTAMP"
             | "XDP_TXMD_FLAGS_CHECKSUM"
-            | "XDP_TX_METADATA" => true,
+            | "XDP_TX_METADATA"
+                if musl || pointer_width == 32 =>
+            {
+                true
+            }
 
             // FIXME(linux): Requires >= 6.11 kernel headers.
             "XDP_UMEM_TX_METADATA_LEN" => true,
@@ -4627,9 +4623,6 @@ fn test_linux(target: &str) {
             "MNT_NS_INFO_SIZE_VER0" | "NS_MNT_GET_INFO" | "NS_MNT_GET_NEXT" | "NS_MNT_GET_PREV" => {
                 true
             }
-
-            // FIXME(linux): Requires >= 6.6 kernel headers.
-            "SYS_fchmodat2" => true,
 
             // FIXME(linux): Requires >= 6.10 kernel headers.
             "SYS_mseal" => true,
@@ -4675,6 +4668,9 @@ fn test_linux(target: &str) {
 
             // Linux 6.14
             "AT_EXECVE_CHECK" => true,
+
+            // FIXME(linux):  Requires >= 6.16 kernel headers.
+            "PTRACE_SET_SYSCALL_INFO" => true,
 
             _ => false,
         }
@@ -4987,25 +4983,38 @@ fn test_linux(target: &str) {
     if gnu {
         // old constants, so tests fail if glibc is too new
         cfg.skip_const(|s| {
+            // grep -E -h '^B([0-9])*$' libc-test/semver/*
             [
-                "B50", "B75", "B110", "B134", "B150", "B200", "B300", "B600", "B1200", "B1800",
-                "B2400", "B4800", "B9600", "B19200", "B38400", "EXTA", "EXTB", "B57600", "B115200",
-                "B230400", "B460800", "B500000", "B576000", "B921600", "B1000000", "B1152000",
-                "B1500000", "B2000000", "B2500000", "B3000000", "B3500000", "B4000000",
+                "EXTA", "EXTB", "B0", "B1000000", "B110", "B115200", "B1152000", "B1200", "B134",
+                "B14400", "B150", "B1500000", "B153600", "B1800", "B19200", "B200", "B2000000",
+                "B230400", "B2400", "B2500000", "B28800", "B300", "B3000000", "B307200",
+                "B3500000", "B38400", "B4000000", "B460800", "B4800", "B50", "B500000", "B57600",
+                "B576000", "B600", "B614400", "B7200", "B75", "B76800", "B921600", "B9600",
             ]
             .contains(&s.ident())
         });
+        if mips || sparc {
+            cfg.skip_const(|s| s.ident() == "NCCS");
+        }
         // old symbols, so tests fail if glibc is too new
-        cfg.skip_fn_ptrcheck(|s| {
-            [
-                "cfgetispeed",
-                "cfgetospeed",
-                "cfsetispeed",
-                "cfsetospeed",
-                "cfsetspeed",
-            ]
-            .contains(&s)
+        // note: `skip_fn_ptrcheck` overrides the previous function
+        cfg.skip_fn_ptrcheck(move |s| {
+            let mut result = false;
+            result = result || s == "cfgetispeed";
+            result = result || s == "cfgetospeed";
+            result = result || s == "cfsetispeed";
+            result = result || s == "cfsetospeed";
+            result = result || s == "cfsetspeed";
+            if mips || sparc {
+                result = result || s == "tcgetattr";
+                result = result || s == "tcsetattr";
+            }
+            result
         });
+        // old structs, so tests fail if glibc is too new
+        if mips || sparc {
+            cfg.skip_struct(|s| s.ident() == "termios");
+        }
     }
 
     ctest::generate_test(&mut cfg, "../src/lib.rs", "ctest_output.rs").unwrap();
@@ -5698,16 +5707,6 @@ fn test_aix(target: &str) {
             // header does not define a separate standalone union type for it.
             ("ld_info", "_file") => true,
 
-            // On AIX, when _ALL_SOURCE is defined, the types of the following fields
-            // differ from those used when _XOPEN_SOURCE is defined. The former uses
-            // 'struct st_timespec', while the latter uses 'struct timespec'.
-            ("stat", "st_atim") => true,
-            ("stat", "st_mtim") => true,
-            ("stat", "st_ctim") => true,
-            ("stat64", "st_atim") => true,
-            ("stat64", "st_mtim") => true,
-            ("stat64", "st_ctim") => true,
-
             _ => false,
         }
     });
@@ -5719,12 +5718,6 @@ fn test_aix(target: &str) {
 
             // The field 'data' is actually a unnamed union in the AIX header.
             "pollfd_ext" if field.ident() == "data" => true,
-
-            // On AIX, <stat.h> declares 'tv_nsec' as 'long', but the
-            // underlying system calls return a 32-bit value in both 32-bit
-            // and 64-bit modes. In the 'libc' crate it is declared as 'i32'
-            // to match the system call. Skip this field.
-            "timespec" if field.ident() == "tv_nsec" => true,
 
             _ => false,
         }
