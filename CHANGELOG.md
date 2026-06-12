@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.2.186](https://github.com/rust-lang/libc/compare/0.2.185...0.2.186) - 2026-04-24
+
+### Added
+
+- Apple: Add `KEVENT_FLAG_*` constants ([#5070](https://github.com/rust-lang/libc/pull/5070))
+- Linux: Add `PR_SET_MEMORY_MERGE` and `PR_GET_MEMORY_MERGE` ([#5060](https://github.com/rust-lang/libc/pull/5060))
+
+### Changed
+
+- CI: Migrate FreeBSD CI from Cirrus CI to GitHub Actions ([#5058](https://github.com/rust-lang/libc/pull/5058))
+
+## [0.2.185](https://github.com/rust-lang/libc/compare/0.2.184...0.2.185) - 2026-04-13
+
+### Added
+
+- EspIDF: Add `espidf_picolibc` cfg for picolibc `O_*` flag values ([#5035](https://github.com/rust-lang/libc/pull/5035))
+- Hexagon: add missing constants and fix types for linux-musl ([#5042](https://github.com/rust-lang/libc/pull/5042))
+- Redox: Add semaphore functions ([#5051](https://github.com/rust-lang/libc/pull/5051))
+- Windows: Add `sprintf`, `snprintf`, and the `scanf` family ([#5024](https://github.com/rust-lang/libc/pull/5024))
+
+### Fixed
+
+- Hexagon: Decouple `time64` types from musl symbol redirects ([#5040](https://github.com/rust-lang/libc/pull/5040))
+- Horizon: Change `POLL` constants from `c_short` to `c_int` ([#5045](https://github.com/rust-lang/libc/pull/5045))
+
+
 ## [0.2.184](https://github.com/rust-lang/libc/compare/0.2.183...0.2.184) - 2026-04-01
 
 ### MSRV
