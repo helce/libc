@@ -4537,6 +4537,8 @@ fn test_linux(target: &str) {
             | "FAN_INFO"
             | "MOVE_MOUNT_BENEATH"
             | "NFT_MSG_MAX"
+            | "PR_GET_MEMORY_MERGE"
+            | "PR_SET_MEMORY_MERGE"
                 if e2k =>
             {
                 true
