@@ -62,30 +62,30 @@ pub const SCTP_PR_SCTP_MAX: c_int = SCTP_PR_SCTP_PRIO;
 pub const SCTP_PR_SCTP_MASK: c_int = 0x0030;
 
 f! {
-    pub fn SCTP_PR_INDEX(policy: c_int) -> c_int {
+    pub unsafe fn SCTP_PR_INDEX(policy: c_int) -> c_int {
         policy >> (4 - 1)
     }
 
-    pub fn SCTP_PR_POLICY(policy: c_int) -> c_int {
+    pub unsafe fn SCTP_PR_POLICY(policy: c_int) -> c_int {
         policy & SCTP_PR_SCTP_MASK
     }
 
-    pub fn SCTP_PR_SET_POLICY(flags: &mut c_int, policy: c_int) -> () {
+    pub unsafe fn SCTP_PR_SET_POLICY(flags: &mut c_int, policy: c_int) -> () {
         *flags &= !SCTP_PR_SCTP_MASK;
         *flags |= policy;
     }
 }
 
 safe_f! {
-    pub const fn SCTP_PR_TTL_ENABLED(policy: c_int) -> bool {
+    pub const safe fn SCTP_PR_TTL_ENABLED(policy: c_int) -> bool {
         policy == SCTP_PR_SCTP_TTL
     }
 
-    pub const fn SCTP_PR_RTX_ENABLED(policy: c_int) -> bool {
+    pub const safe fn SCTP_PR_RTX_ENABLED(policy: c_int) -> bool {
         policy == SCTP_PR_SCTP_RTX
     }
 
-    pub const fn SCTP_PR_PRIO_ENABLED(policy: c_int) -> bool {
+    pub const safe fn SCTP_PR_PRIO_ENABLED(policy: c_int) -> bool {
         policy == SCTP_PR_SCTP_PRIO
     }
 }

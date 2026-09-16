@@ -3367,7 +3367,6 @@ fn test_freebsd(target: &str) {
 
 fn test_emscripten(target: &str) {
     assert!(target.contains("emscripten"));
-    #[expect(unused_variables)] // remove once we need a version check
     let emscripten = VERSIONS.emscripten.unwrap();
 
     let mut cfg = ctest_cfg();
@@ -3535,6 +3534,9 @@ fn test_emscripten(target: &str) {
             // Emscripten does not support fork/exec/wait or any kind of multi-process support
             // https://github.com/emscripten-core/emscripten/blob/3.1.68/tools/system_libs.py#L1100
             "execv" | "execve" | "execvp" | "execvpe" | "fexecve" | "wait4" => true,
+
+            // Emscripten's `pthread_kill` used to only be linkable when building with `-pthread`
+            "pthread_kill" if emscripten < (6, 0) => true,
 
             _ => false,
         }
@@ -4998,9 +5000,6 @@ fn test_linux(target: &str) {
 
             // FIXME(value): IPPROTO_MAX was increased in 5.6 for IPPROTO_MPTCP:
             "IPPROTO_MAX" => true,
-
-            // FIXME(linux): Not yet implemented on sparc64
-            "SYS_clone3" if sparc64 => true,
 
             // Requires >= 6.9 kernel headers.
             n if (arm || ppc32 || e2k) && n.starts_with("FUTEX2_") => kernel < (6, 9),

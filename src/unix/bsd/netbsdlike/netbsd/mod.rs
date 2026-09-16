@@ -1815,15 +1815,15 @@ const fn _ALIGN(p: usize) -> usize {
 }
 
 f! {
-    pub fn CMSG_DATA(cmsg: *const cmsghdr) -> *mut c_uchar {
+    pub unsafe fn CMSG_DATA(cmsg: *const cmsghdr) -> *mut c_uchar {
         (cmsg as *mut c_uchar).add(_ALIGN(size_of::<cmsghdr>()))
     }
 
-    pub const fn CMSG_LEN(length: c_uint) -> c_uint {
+    pub const unsafe fn CMSG_LEN(length: c_uint) -> c_uint {
         _ALIGN(size_of::<cmsghdr>()) as c_uint + length
     }
 
-    pub fn CMSG_NXTHDR(mhdr: *const crate::msghdr, cmsg: *const cmsghdr) -> *mut cmsghdr {
+    pub unsafe fn CMSG_NXTHDR(mhdr: *const crate::msghdr, cmsg: *const cmsghdr) -> *mut cmsghdr {
         if cmsg.is_null() {
             return crate::CMSG_FIRSTHDR(mhdr);
         }
@@ -1836,49 +1836,49 @@ f! {
         }
     }
 
-    pub const fn CMSG_SPACE(length: c_uint) -> c_uint {
+    pub const unsafe fn CMSG_SPACE(length: c_uint) -> c_uint {
         (_ALIGN(size_of::<cmsghdr>()) + _ALIGN(length as usize)) as c_uint
     }
 
     // dirfd() is a macro on netbsd to access
     // the first field of the struct where dirp points to:
     // http://cvsweb.netbsd.org/bsdweb.cgi/src/include/dirent.h?rev=1.36
-    pub fn dirfd(dirp: *mut crate::DIR) -> c_int {
+    pub unsafe fn dirfd(dirp: *mut crate::DIR) -> c_int {
         *(dirp as *const c_int)
     }
 
-    pub fn SOCKCREDSIZE(ngrps: usize) -> usize {
+    pub unsafe fn SOCKCREDSIZE(ngrps: usize) -> usize {
         let ngrps = if ngrps > 0 { ngrps - 1 } else { 0 };
         size_of::<sockcred>() + size_of::<crate::gid_t>() * ngrps
     }
 
-    pub fn PROT_MPROTECT(x: c_int) -> c_int {
+    pub unsafe fn PROT_MPROTECT(x: c_int) -> c_int {
         x << 3
     }
 
-    pub fn PROT_MPROTECT_EXTRACT(x: c_int) -> c_int {
+    pub unsafe fn PROT_MPROTECT_EXTRACT(x: c_int) -> c_int {
         (x >> 3) & 0x7
     }
 }
 
 safe_f! {
-    pub const fn WSTOPSIG(status: c_int) -> c_int {
+    pub const safe fn WSTOPSIG(status: c_int) -> c_int {
         status >> 8
     }
 
-    pub const fn WIFSIGNALED(status: c_int) -> bool {
+    pub const safe fn WIFSIGNALED(status: c_int) -> bool {
         (status & 0o177) != 0o177 && (status & 0o177) != 0
     }
 
-    pub const fn WIFSTOPPED(status: c_int) -> bool {
+    pub const safe fn WIFSTOPPED(status: c_int) -> bool {
         (status & 0o177) == 0o177
     }
 
-    pub const fn WIFCONTINUED(status: c_int) -> bool {
+    pub const safe fn WIFCONTINUED(status: c_int) -> bool {
         status == 0xffff
     }
 
-    pub const fn makedev(major: c_uint, minor: c_uint) -> crate::dev_t {
+    pub const safe fn makedev(major: c_uint, minor: c_uint) -> crate::dev_t {
         let major = major as crate::dev_t;
         let minor = minor as crate::dev_t;
         let mut dev = 0;
@@ -1888,11 +1888,11 @@ safe_f! {
         dev
     }
 
-    pub const fn major(dev: crate::dev_t) -> c_int {
+    pub const safe fn major(dev: crate::dev_t) -> c_int {
         (((dev as u32) & 0x000fff00) >> 8) as c_int
     }
 
-    pub const fn minor(dev: crate::dev_t) -> c_int {
+    pub const safe fn minor(dev: crate::dev_t) -> c_int {
         let mut res = 0;
         res |= ((dev as u32) & 0xfff00000) >> 12;
         res |= (dev as u32) & 0x000000ff;
