@@ -1439,7 +1439,11 @@ pub const NT_LWPSINFO: c_int = 17;
 pub const NT_PRFPXREG: c_int = 20;
 
 // FIXME(1.0): C uses an unsigned int here.
+#[cfg(not(target_arch = "e2k"))]
 pub const MS_NOUSER: c_ulong = 1 << 31;
+#[cfg(target_arch = "e2k")]
+#[allow(overflowing_literals)]
+pub const MS_NOUSER: c_ulong = 0xffffffff80000000;
 
 f! {
     pub fn CMSG_NXTHDR(
