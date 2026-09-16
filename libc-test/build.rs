@@ -4615,7 +4615,7 @@ fn test_linux(target: &str) {
             // FIXME(musl): New fields in newer versions
             "utmpx" if !old_musl => true,
 
-            // FIXME(linux): requires more recent kernel headers on e2k
+            // FIXME(linux): Requires >= 6.4 kernel headers
             "ptrace_sud_config" if e2k => true,
 
             // FIXME(linux): Requires >= 6.16 kernel headers.
@@ -5003,7 +5003,7 @@ fn test_linux(target: &str) {
             "SYS_clone3" if sparc64 => true,
 
             // Requires >= 6.9 kernel headers.
-            n if (arm || ppc32) && n.starts_with("FUTEX2_") => kernel < (6, 9),
+            n if (arm || ppc32 || e2k) && n.starts_with("FUTEX2_") => kernel < (6, 9),
 
             // FIXME(linux): Not defined on ARM, gnueabihf, mips, musl, PowerPC, riscv64, s390x, and sparc64.
             "SYS_memfd_secret"
@@ -5034,6 +5034,8 @@ fn test_linux(target: &str) {
             | "NFT_MSG_MAX"
             | "PR_GET_MEMORY_MERGE"
             | "PR_SET_MEMORY_MERGE"
+            | "PTRACE_SET_SYSCALL_USER_DISPATCH_CONFIG"
+            | "PTRACE_GET_SYSCALL_USER_DISPATCH_CONFIG"
                 if e2k =>
             {
                 true
@@ -5111,7 +5113,7 @@ fn test_linux(target: &str) {
             }
 
             // FIXME(linux32): Requires >= 6.6 kernel headers.
-            "XDP_USE_SG" | "XDP_PKT_CONTD" if pointer_width == 32 => kernel < (6, 6),
+            "XDP_USE_SG" | "XDP_PKT_CONTD" if e2k || pointer_width == 32 => kernel < (6, 6),
 
             // FIXME(linux): Missing only on this platform for some reason
             "PR_MDWE_NO_INHERIT" if gnueabihf => true,
