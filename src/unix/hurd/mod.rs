@@ -226,8 +226,8 @@ pub type nl_item = c_int;
 pub type iconv_t = *mut c_void;
 
 extern_ty! {
-    pub enum fpos64_t {} // FIXME(hurd): fill this out with a struct
-    pub enum timezone {}
+    pub type fpos64_t; // FIXME(hurd): fill this out with a struct
+    pub type timezone;
 }
 
 // structs
@@ -1230,7 +1230,11 @@ pub const PF_IPX: c_int = 23;
 pub const PF_SIP: c_int = 24;
 pub const PF_PIP: c_int = 25;
 pub const PF_INET6: c_int = 26;
+
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const PF_MAX: c_int = 27;
+
 pub const AF_UNSPEC: c_int = 0;
 pub const AF_LOCAL: c_int = 1;
 pub const AF_UNIX: c_int = 1;
@@ -1260,7 +1264,11 @@ pub const AF_IPX: c_int = 23;
 pub const AF_SIP: c_int = 24;
 pub const pseudo_AF_PIP: c_int = 25;
 pub const AF_INET6: c_int = 26;
+
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const AF_MAX: c_int = 27;
+
 pub const SOMAXCONN: c_int = 4096;
 pub const _SS_SIZE: usize = 128;
 pub const CMGROUP_MAX: usize = 16;
@@ -1526,8 +1534,15 @@ pub const _POSIX_QLIMIT: usize = 1;
 pub const _POSIX_HIWAT: usize = 512;
 pub const _POSIX_UIO_MAXIOV: usize = 16;
 pub const _POSIX_CLOCKRES_MIN: usize = 20000000;
+
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const NAME_MAX: usize = 255;
+
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const NGROUPS_MAX: usize = 256;
+
 pub const _POSIX_THREAD_KEYS_MAX: usize = 128;
 pub const _POSIX_THREAD_DESTRUCTOR_ITERATIONS: usize = 4;
 pub const _POSIX_THREAD_THREADS_MAX: usize = 64;
@@ -3207,6 +3222,9 @@ pub const RTLD_DI_PROFILEOUT: c_int = 8;
 pub const RTLD_DI_TLS_MODID: c_int = 9;
 pub const RTLD_DI_TLS_DATA: c_int = 10;
 pub const RTLD_DI_PHDR: c_int = 11;
+
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const RTLD_DI_MAX: c_int = 11;
 
 pub const SI_ASYNCIO: c_int = -4;
@@ -3336,19 +3354,19 @@ pub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t = pthread_mutex_t {
 };
 pub const PTHREAD_COND_INITIALIZER: pthread_cond_t = pthread_cond_t {
     __lock: __PTHREAD_SPIN_LOCK_INITIALIZER,
-    __queue: 0i64 as *mut __pthread,
-    __attr: 0i64 as *mut __pthread_condattr,
+    __queue: ptr::null_mut(),
+    __attr: ptr::null_mut(),
     __wrefs: 0,
-    __data: 0i64 as *mut c_void,
+    __data: ptr::null_mut(),
 };
 pub const PTHREAD_RWLOCK_INITIALIZER: pthread_rwlock_t = pthread_rwlock_t {
     __held: __PTHREAD_SPIN_LOCK_INITIALIZER,
     __lock: __PTHREAD_SPIN_LOCK_INITIALIZER,
     __readers: 0,
-    __readerqueue: 0i64 as *mut __pthread,
-    __writerqueue: 0i64 as *mut __pthread,
-    __attr: 0i64 as *mut __pthread_rwlockattr,
-    __data: 0i64 as *mut c_void,
+    __readerqueue: ptr::null_mut(),
+    __writerqueue: ptr::null_mut(),
+    __attr: ptr::null_mut(),
+    __data: ptr::null_mut(),
 };
 pub const PTHREAD_STACK_MIN: size_t = 0;
 
@@ -3363,9 +3381,9 @@ const fn CMSG_ALIGN(len: usize) -> usize {
 f! {
     pub fn CMSG_FIRSTHDR(mhdr: *const msghdr) -> *mut cmsghdr {
         if (*mhdr).msg_controllen as usize >= size_of::<cmsghdr>() {
-            (*mhdr).msg_control.cast::<cmsghdr>()
+            (*mhdr).msg_control.cast()
         } else {
-            core::ptr::null_mut::<cmsghdr>()
+            ptr::null_mut()
         }
     }
 
@@ -3383,16 +3401,16 @@ f! {
 
     pub fn CMSG_NXTHDR(mhdr: *const msghdr, cmsg: *const cmsghdr) -> *mut cmsghdr {
         if ((*cmsg).cmsg_len as usize) < size_of::<cmsghdr>() {
-            return core::ptr::null_mut::<cmsghdr>();
+            return ptr::null_mut();
         }
         let next = (cmsg as usize + CMSG_ALIGN((*cmsg).cmsg_len as usize)) as *mut cmsghdr;
         let max = (*mhdr).msg_control as usize + (*mhdr).msg_controllen as usize;
         if (next.offset(1)) as usize > max
             || next as usize + CMSG_ALIGN((*next).cmsg_len as usize) > max
         {
-            core::ptr::null_mut::<cmsghdr>()
+            ptr::null_mut()
         } else {
-            next.cast::<cmsghdr>()
+            next.cast()
         }
     }
 
@@ -3403,9 +3421,7 @@ f! {
     }
 
     pub fn CPU_ZERO(cpuset: &mut cpu_set_t) -> () {
-        for slot in cpuset.bits.iter_mut() {
-            *slot = 0;
-        }
+        cpuset.bits.fill(0);
     }
 
     pub fn CPU_SET(cpu: usize, cpuset: &mut cpu_set_t) -> () {
@@ -3472,9 +3488,7 @@ f! {
     }
 
     pub fn FD_ZERO(set: *mut fd_set) -> () {
-        for slot in (*set).fds_bits.iter_mut() {
-            *slot = 0;
-        }
+        (*set).fds_bits.fill(0);
     }
 }
 

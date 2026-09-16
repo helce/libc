@@ -32,7 +32,7 @@ pub type uid_t = c_int;
 pub type gid_t = c_int;
 
 extern_ty! {
-    pub enum timezone {}
+    pub type timezone;
 }
 
 s! {
@@ -333,6 +333,8 @@ cfg_if! {
 }
 
 // limits.h
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const PATH_MAX: c_int = 4096;
 
 // fcntl.h
@@ -345,6 +347,11 @@ pub const F_TLOCK: c_int = 2;
 pub const F_TEST: c_int = 3;
 
 pub const AT_FDCWD: c_int = -100;
+pub const AT_SYMLINK_NOFOLLOW: c_int = 0x200;
+pub const AT_REMOVEDIR: c_int = 0x200;
+pub const AT_SYMLINK_FOLLOW: c_int = 0x2000;
+pub const AT_EMPTY_PATH: c_int = 0x4000;
+pub const AT_EACCESS: c_int = 0x400;
 
 // FIXME(redox): relibc {
 pub const RTLD_DEFAULT: *mut c_void = ptr::null_mut();
@@ -516,6 +523,7 @@ pub const O_SHLOCK: c_int = 0x0010_0000;
 pub const O_EXLOCK: c_int = 0x0020_0000;
 pub const O_ASYNC: c_int = 0x0040_0000;
 pub const O_FSYNC: c_int = 0x0080_0000;
+pub const O_SYNC: c_int = O_FSYNC;
 pub const O_CLOEXEC: c_int = 0x0100_0000;
 pub const O_CREAT: c_int = 0x0200_0000;
 pub const O_TRUNC: c_int = 0x0400_0000;
@@ -725,6 +733,8 @@ pub const S_IRWXO: c_int = 0o0007;
 pub const S_IROTH: c_int = 0o0004;
 pub const S_IWOTH: c_int = 0o0002;
 pub const S_IXOTH: c_int = 0o0001;
+pub const UTIME_NOW: c_long = u32_cast_long(0xffffffff);
+pub const UTIME_OMIT: c_long = u32_cast_long(0xfffffffe);
 
 // stdlib.h
 pub const EXIT_SUCCESS: c_int = 0;
@@ -978,8 +988,7 @@ pub const WNOWAIT: c_int = 0x0100_0000;
 
 pub const __WNOTHREAD: c_int = 0x2000_0000;
 pub const __WALL: c_int = 0x4000_0000;
-#[allow(overflowing_literals)]
-pub const __WCLONE: c_int = 0x8000_0000;
+pub const __WCLONE: c_int = u32_cast_int(0x8000_0000);
 
 // time.h
 pub const CLOCK_REALTIME: c_int = 1;
@@ -1134,9 +1143,7 @@ f! {
     }
 
     pub fn FD_ZERO(set: *mut fd_set) -> () {
-        for slot in (*set).fds_bits.iter_mut() {
-            *slot = 0;
-        }
+        (*set).fds_bits.fill(0);
     }
 }
 
@@ -1206,8 +1213,10 @@ extern "C" {
 
     // dirent.h
     pub fn dirfd(dirp: *mut crate::DIR) -> c_int;
+    pub fn seekdir(dirp: *mut crate::DIR, loc: c_long);
 
     // unistd.h
+    pub fn faccessat(dirfd: c_int, pathname: *const c_char, mode: c_int, flags: c_int) -> c_int;
     pub fn pipe2(fds: *mut c_int, flags: c_int) -> c_int;
     pub fn getdtablesize() -> c_int;
     pub fn getresgid(
@@ -1408,6 +1417,13 @@ extern "C" {
 
     // sys/stat.h
     pub fn futimens(fd: c_int, times: *const crate::timespec) -> c_int;
+    pub fn mknodat(dirfd: c_int, pathname: *const c_char, mode: mode_t, dev: dev_t) -> c_int;
+    pub fn utimensat(
+        dirfd: c_int,
+        path: *const c_char,
+        times: *const crate::timespec,
+        flag: c_int,
+    ) -> c_int;
 
     // sys/uio.h
     pub fn preadv(fd: c_int, iov: *const crate::iovec, iovcnt: c_int, offset: off_t) -> ssize_t;
@@ -1420,6 +1436,7 @@ extern "C" {
 
     // time.h
     pub fn gettimeofday(tp: *mut crate::timeval, tz: *mut crate::timezone) -> c_int;
+    pub fn clock_getres(clk_id: crate::clockid_t, tp: *mut crate::timespec) -> c_int;
     pub fn clock_gettime(clk_id: crate::clockid_t, tp: *mut crate::timespec) -> c_int;
     pub fn strftime(
         s: *mut c_char,

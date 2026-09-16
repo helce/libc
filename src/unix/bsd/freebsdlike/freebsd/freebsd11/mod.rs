@@ -258,8 +258,14 @@ s! {
     }
 }
 
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const ELAST: c_int = 96;
+
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const RAND_MAX: c_int = 0x7fff_fffd;
+
 pub const KI_NSPARE_PTR: usize = 6;
 pub const MINCORE_SUPER: c_int = 0x20;
 /// max length of devicename

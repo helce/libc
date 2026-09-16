@@ -865,7 +865,7 @@ impl siginfo_t {
             _stime: crate::clock_t,
             _status: crate::c_int,
         }
-        (*(self as *const siginfo_t as *const siginfo_proc))._status
+        (*(self as *const siginfo_t).cast::<siginfo_proc>())._status
     }
 }
 
@@ -945,6 +945,9 @@ pub const EBADMSG: c_int = 92;
 pub const ENOTRECOVERABLE: c_int = 93;
 pub const EOWNERDEAD: c_int = 94;
 pub const EPROTO: c_int = 95;
+
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const ELAST: c_int = 95;
 
 pub const F_DUPFD_CLOEXEC: c_int = 10;
@@ -1523,6 +1526,8 @@ pub const ISOFSMNT_EXTATT: c_int = 0x4; // enable extended attr
 pub const ISOFSMNT_NOJOLIET: c_int = 0x8; // disable Joliet Ext
 pub const ISOFSMNT_SESS: c_int = 0x10; // use iso_args.sess
 
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const NFS_ARGSVERSION: c_int = 4; // change when nfs_args changes
 
 pub const NFSMNT_RESVPORT: c_int = 0; // always use reserved ports
@@ -1552,7 +1557,7 @@ pub const NFSMNT_ACDIRMIN: c_int = 0x100000; // acdirmin field valid
 pub const NFSMNT_ACDIRMAX: c_int = 0x200000; // acdirmax field valid
 
 /* Flags valid only in kernel */
-pub const NFSMNT_INTERNAL: c_int = 0xfffc0000; // Bits set internally
+pub const NFSMNT_INTERNAL: c_int = u32_cast_int(0xfffc0000); // Bits set internally
 pub const NFSMNT_HASWRITEVERF: c_int = 0x40000; // Has write verifier for V3
 pub const NFSMNT_GOTPATHCONF: c_int = 0x80000; // Got the V3 pathconf info
 pub const NFSMNT_GOTFSINFO: c_int = 0x100000; // Got the V3 fsinfo
@@ -1566,7 +1571,7 @@ pub const NFSMNT_WANTRCV: c_int = 0x8000000; // Want above
 pub const NFSMNT_WAITAUTH: c_int = 0x10000000; // Wait for authentication
 pub const NFSMNT_HASAUTH: c_int = 0x20000000; // Has authenticator
 pub const NFSMNT_WANTAUTH: c_int = 0x40000000; // Wants an authenticator
-pub const NFSMNT_AUTHERR: c_int = 0x80000000; // Authentication error
+pub const NFSMNT_AUTHERR: c_int = u32_cast_int(0x80000000); // Authentication error
 
 pub const MSDOSFSMNT_SHORTNAME: c_int = 0x1; // Force old DOS short names only
 pub const MSDOSFSMNT_LONGNAME: c_int = 0x2; // Force Win'95 long names
@@ -1752,7 +1757,10 @@ pub const LC_NUMERIC_MASK: c_int = 1 << crate::LC_NUMERIC;
 pub const LC_TIME_MASK: c_int = 1 << crate::LC_TIME;
 pub const LC_MESSAGES_MASK: c_int = 1 << crate::LC_MESSAGES;
 
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 const _LC_LAST: c_int = 7;
+
 pub const LC_ALL_MASK: c_int = (1 << _LC_LAST) - 2;
 
 pub const LC_GLOBAL_LOCALE: crate::locale_t = -1isize as crate::locale_t;
@@ -1830,6 +1838,9 @@ pub const RTAX_BFD: c_int = 11;
 pub const RTAX_DNS: c_int = 12;
 pub const RTAX_STATIC: c_int = 13;
 pub const RTAX_SEARCH: c_int = 14;
+
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const RTAX_MAX: c_int = 15;
 
 const fn _ALIGN(p: usize) -> usize {
@@ -1852,7 +1863,7 @@ f! {
         let next = cmsg as usize + _ALIGN((*cmsg).cmsg_len as usize) + _ALIGN(size_of::<cmsghdr>());
         let max = (*mhdr).msg_control as usize + (*mhdr).msg_controllen as usize;
         if next > max {
-            core::ptr::null_mut::<cmsghdr>()
+            ptr::null_mut()
         } else {
             (cmsg as usize + _ALIGN((*cmsg).cmsg_len as usize)) as *mut cmsghdr
         }

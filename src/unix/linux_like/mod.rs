@@ -10,7 +10,7 @@ pub type key_t = c_int;
 pub type id_t = c_uint;
 
 extern_ty! {
-    pub enum timezone {}
+    pub type timezone;
 }
 
 s! {
@@ -240,10 +240,10 @@ cfg_if! {
 
             // linux/filter.h
             pub struct sock_filter {
-                pub code: __u16,
-                pub jt: __u8,
-                pub jf: __u8,
-                pub k: __u32,
+                pub code: crate::__u16,
+                pub jt: crate::__u8,
+                pub jf: crate::__u8,
+                pub k: crate::__u32,
             }
 
             pub struct sock_fprog {
@@ -285,6 +285,25 @@ cfg_if! {
                 pub stx_mnt_id: crate::__u64,
                 pub stx_dio_mem_align: crate::__u32,
                 pub stx_dio_offset_align: crate::__u32,
+                // The following fields are not available on Android as of
+                // 2026-06.
+                #[cfg(target_os = "linux")]
+                pub stx_subvol: crate::__u64,
+                #[cfg(target_os = "linux")]
+                pub stx_atomic_write_unit_min: crate::__u32,
+                #[cfg(target_os = "linux")]
+                pub stx_atomic_write_unit_max: crate::__u32,
+                #[cfg(target_os = "linux")]
+                pub stx_atomic_write_segments_max: crate::__u32,
+                #[cfg(target_os = "linux")]
+                pub stx_dio_read_offset_align: crate::__u32,
+                #[cfg(target_os = "linux")]
+                pub stx_atomic_write_unit_max_opt: crate::__u32,
+                #[cfg(target_os = "linux")]
+                __statx_pad2: Padding<[crate::__u32; 1]>,
+                #[cfg(target_os = "linux")]
+                __statx_pad3: Padding<[crate::__u64; 8]>,
+                #[cfg(not(target_os = "linux"))]
                 __statx_pad3: Padding<[crate::__u64; 12]>,
             }
 
@@ -548,6 +567,7 @@ pub const MS_NODIRATIME: c_ulong = 0x0800;
 pub const MS_BIND: c_ulong = 0x1000;
 pub const MS_MOVE: c_ulong = 0x2000;
 pub const MS_REC: c_ulong = 0x4000;
+// MS_VERBOSE is deprecated
 pub const MS_SILENT: c_ulong = 0x8000;
 pub const MS_POSIXACL: c_ulong = 0x010000;
 pub const MS_UNBINDABLE: c_ulong = 0x020000;
@@ -770,11 +790,11 @@ pub const IP_TRANSPARENT: c_int = 19;
 pub const IP_ORIGDSTADDR: c_int = 20;
 pub const IP_RECVORIGDSTADDR: c_int = IP_ORIGDSTADDR;
 pub const IP_MINTTL: c_int = 21;
-#[cfg(not(target_env = "uclibc"))]
+#[cfg(not(target_os = "l4re"))]
 pub const IP_NODEFRAG: c_int = 22;
-#[cfg(not(target_env = "uclibc"))]
+#[cfg(not(target_os = "l4re"))]
 pub const IP_CHECKSUM: c_int = 23;
-#[cfg(not(target_env = "uclibc"))]
+#[cfg(not(target_os = "l4re"))]
 pub const IP_BIND_ADDRESS_NO_PORT: c_int = 24;
 pub const IP_MULTICAST_IF: c_int = 32;
 pub const IP_MULTICAST_TTL: c_int = 33;
@@ -796,9 +816,9 @@ pub const IP_PMTUDISC_DONT: c_int = 0;
 pub const IP_PMTUDISC_WANT: c_int = 1;
 pub const IP_PMTUDISC_DO: c_int = 2;
 pub const IP_PMTUDISC_PROBE: c_int = 3;
-#[cfg(not(target_env = "uclibc"))]
+#[cfg(not(target_os = "l4re"))]
 pub const IP_PMTUDISC_INTERFACE: c_int = 4;
-#[cfg(not(target_env = "uclibc"))]
+#[cfg(not(target_os = "l4re"))]
 pub const IP_PMTUDISC_OMIT: c_int = 5;
 
 // IPPROTO_IP defined in src/unix/mod.rs
@@ -908,16 +928,16 @@ pub const IPV6_RECVRTHDR: c_int = 56;
 pub const IPV6_RTHDR: c_int = 57;
 pub const IPV6_RECVDSTOPTS: c_int = 58;
 pub const IPV6_DSTOPTS: c_int = 59;
-#[cfg(not(target_env = "uclibc"))]
+#[cfg(not(target_os = "l4re"))]
 pub const IPV6_RECVPATHMTU: c_int = 60;
-#[cfg(not(target_env = "uclibc"))]
+#[cfg(not(target_os = "l4re"))]
 pub const IPV6_PATHMTU: c_int = 61;
-#[cfg(not(target_env = "uclibc"))]
+#[cfg(not(target_os = "l4re"))]
 pub const IPV6_DONTFRAG: c_int = 62;
 pub const IPV6_RECVTCLASS: c_int = 66;
 pub const IPV6_TCLASS: c_int = 67;
 cfg_if! {
-    if #[cfg(not(target_env = "uclibc"))] {
+    if #[cfg(not(target_os = "l4re"))] {
         pub const IPV6_AUTOFLOWLABEL: c_int = 70;
         pub const IPV6_ADDR_PREFERENCES: c_int = 72;
         pub const IPV6_MINHOPCOUNT: c_int = 73;
@@ -1011,7 +1031,12 @@ pub const LOCK_UN: c_int = 8;
 pub const SS_ONSTACK: c_int = 1;
 pub const SS_DISABLE: c_int = 2;
 
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const NAME_MAX: c_int = 255;
+
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const PATH_MAX: c_int = 4096;
 
 pub const UIO_MAXIOV: c_int = 1024;
@@ -1032,7 +1057,7 @@ pub const EPOLLRDHUP: c_int = 0x2000;
 pub const EPOLLEXCLUSIVE: c_int = 0x10000000;
 pub const EPOLLWAKEUP: c_int = 0x20000000;
 pub const EPOLLONESHOT: c_int = 0x40000000;
-pub const EPOLLET: c_int = 0x80000000;
+pub const EPOLLET: c_int = u32_cast_int(0x80000000);
 
 pub const EPOLL_CTL_ADD: c_int = 1;
 pub const EPOLL_CTL_MOD: c_int = 3;
@@ -1130,7 +1155,7 @@ pub const CLONE_NEWIPC: c_int = 0x08000000;
 pub const CLONE_NEWUSER: c_int = 0x10000000;
 pub const CLONE_NEWPID: c_int = 0x20000000;
 pub const CLONE_NEWNET: c_int = 0x40000000;
-pub const CLONE_IO: c_int = 0x80000000;
+pub const CLONE_IO: c_int = u32_cast_int(0x80000000);
 
 pub const WNOHANG: c_int = 0x00000001;
 pub const WUNTRACED: c_int = 0x00000002;
@@ -1178,10 +1203,10 @@ cfg_if! {
 
 pub const __WNOTHREAD: c_int = 0x20000000;
 pub const __WALL: c_int = 0x40000000;
-pub const __WCLONE: c_int = 0x80000000;
+pub const __WCLONE: c_int = u32_cast_int(0x80000000);
 
 cfg_if! {
-    if #[cfg(not(target_env = "uclibc"))] {
+    if #[cfg(not(target_os = "l4re"))] {
         pub const SPLICE_F_MOVE: c_uint = 0x01;
         pub const SPLICE_F_NONBLOCK: c_uint = 0x02;
         pub const SPLICE_F_MORE: c_uint = 0x04;
@@ -1512,8 +1537,8 @@ cfg_if! {
         pub const AFFS_SUPER_MAGIC: c_long = 0x0000adff;
         pub const AFS_SUPER_MAGIC: c_long = 0x5346414f;
         pub const AUTOFS_SUPER_MAGIC: c_long = 0x0187;
-        pub const BPF_FS_MAGIC: c_long = 0xcafe4a11;
-        pub const BTRFS_SUPER_MAGIC: c_long = 0x9123683e;
+        pub const BPF_FS_MAGIC: c_long = u32_cast_long(0xcafe4a11);
+        pub const BTRFS_SUPER_MAGIC: c_long = u32_cast_long(0x9123683e);
         pub const CGROUP2_SUPER_MAGIC: c_long = 0x63677270;
         pub const CGROUP_SUPER_MAGIC: c_long = 0x27e0eb;
         pub const CODA_SUPER_MAGIC: c_long = 0x73757245;
@@ -1525,12 +1550,12 @@ cfg_if! {
         pub const EXT2_SUPER_MAGIC: c_long = 0x0000ef53;
         pub const EXT3_SUPER_MAGIC: c_long = 0x0000ef53;
         pub const EXT4_SUPER_MAGIC: c_long = 0x0000ef53;
-        pub const F2FS_SUPER_MAGIC: c_long = 0xf2f52010;
+        pub const F2FS_SUPER_MAGIC: c_long = u32_cast_long(0xf2f52010);
         pub const FUSE_SUPER_MAGIC: c_long = 0x65735546;
         pub const FUTEXFS_SUPER_MAGIC: c_long = 0xbad1dea;
         pub const HOSTFS_SUPER_MAGIC: c_long = 0x00c0ffee;
-        pub const HPFS_SUPER_MAGIC: c_long = 0xf995e849;
-        pub const HUGETLBFS_MAGIC: c_long = 0x958458f6;
+        pub const HPFS_SUPER_MAGIC: c_long = u32_cast_long(0xf995e849);
+        pub const HUGETLBFS_MAGIC: c_long = u32_cast_long(0x958458f6);
         pub const ISOFS_SUPER_MAGIC: c_long = 0x00009660;
         pub const JFFS2_SUPER_MAGIC: c_long = 0x000072b6;
         pub const MINIX2_SUPER_MAGIC2: c_long = 0x00002478;
@@ -1551,7 +1576,7 @@ cfg_if! {
         pub const RDTGROUP_SUPER_MAGIC: c_long = 0x7655821;
         pub const REISERFS_SUPER_MAGIC: c_long = 0x52654973;
         pub const SECURITYFS_MAGIC: c_long = 0x73636673;
-        pub const SELINUX_MAGIC: c_long = 0xf97cff8c;
+        pub const SELINUX_MAGIC: c_long = u32_cast_long(0xf97cff8c);
         pub const SMACK_MAGIC: c_long = 0x43415d53;
         pub const SMB_SUPER_MAGIC: c_long = 0x0000517b;
         pub const SYSFS_MAGIC: c_long = 0x62656572;
@@ -1559,7 +1584,7 @@ cfg_if! {
         pub const TRACEFS_MAGIC: c_long = 0x74726163;
         pub const UDF_SUPER_MAGIC: c_long = 0x15013346;
         pub const USBDEVICE_SUPER_MAGIC: c_long = 0x00009fa2;
-        pub const XENFS_SUPER_MAGIC: c_long = 0xabba1974;
+        pub const XENFS_SUPER_MAGIC: c_long = u32_cast_long(0xabba1974);
         pub const NSFS_MAGIC: c_long = 0x6e736673;
     } else if #[cfg(target_arch = "s390x")] {
         pub const ADFS_SUPER_MAGIC: c_uint = 0x0000adf5;
@@ -1645,7 +1670,7 @@ cfg_if! {
         pub const STATX_ALL: c_uint = 0x0fff;
         pub const STATX_MNT_ID: c_uint = 0x1000;
         pub const STATX_DIOALIGN: c_uint = 0x2000;
-        pub const STATX__RESERVED: c_int = 0x80000000;
+        pub const STATX__RESERVED: c_int = u32_cast_int(0x80000000);
         pub const STATX_ATTR_COMPRESSED: c_int = 0x0004;
         pub const STATX_ATTR_IMMUTABLE: c_int = 0x0010;
         pub const STATX_ATTR_APPEND: c_int = 0x0020;
@@ -1750,9 +1775,9 @@ const fn CMSG_ALIGN(len: usize) -> usize {
 f! {
     pub fn CMSG_FIRSTHDR(mhdr: *const crate::msghdr) -> *mut crate::cmsghdr {
         if (*mhdr).msg_controllen as usize >= size_of::<crate::cmsghdr>() {
-            (*mhdr).msg_control.cast::<crate::cmsghdr>()
+            (*mhdr).msg_control.cast()
         } else {
-            core::ptr::null_mut::<crate::cmsghdr>()
+            ptr::null_mut()
         }
     }
 
@@ -1789,9 +1814,7 @@ f! {
     }
 
     pub fn FD_ZERO(set: *mut fd_set) -> () {
-        for slot in &mut (*set).fds_bits {
-            *slot = 0;
-        }
+        (*set).fds_bits.fill(0);
     }
 }
 

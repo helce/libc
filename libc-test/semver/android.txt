@@ -656,6 +656,14 @@ FS_IOC_GETFLAGS
 FS_IOC_GETVERSION
 FS_IOC_SETFLAGS
 FS_IOC_SETVERSION
+FUTEX2_NUMA
+FUTEX2_PRIVATE
+FUTEX2_SIZE_MASK
+FUTEX2_SIZE_U16
+FUTEX2_SIZE_U32
+FUTEX2_SIZE_U64
+FUTEX2_SIZE_U8
+FUTEX_32
 FUTEX_CLOCK_REALTIME
 FUTEX_CMD_MASK
 FUTEX_CMP_REQUEUE
@@ -668,6 +676,7 @@ FUTEX_REQUEUE
 FUTEX_TRYLOCK_PI
 FUTEX_UNLOCK_PI
 FUTEX_WAIT
+FUTEX_WAITV_MAX
 FUTEX_WAIT_BITSET
 FUTEX_WAIT_REQUEUE_PI
 FUTEX_WAKE
@@ -1936,6 +1945,15 @@ POSIX_FADV_NORMAL
 POSIX_FADV_RANDOM
 POSIX_FADV_SEQUENTIAL
 POSIX_FADV_WILLNEED
+POSIX_SPAWN_CLOEXEC_DEFAULT
+POSIX_SPAWN_RESETIDS
+POSIX_SPAWN_SETPGROUP
+POSIX_SPAWN_SETSCHEDPARAM
+POSIX_SPAWN_SETSCHEDULER
+POSIX_SPAWN_SETSID
+POSIX_SPAWN_SETSIGDEF
+POSIX_SPAWN_SETSIGMASK
+POSIX_SPAWN_USEVFORK
 PRIO_MAX
 PRIO_MIN
 PRIO_PGRP
@@ -2370,6 +2388,14 @@ RT_TABLE_MAIN
 RT_TABLE_UNSPEC
 RUSAGE_CHILDREN
 RUSAGE_SELF
+RWF_APPEND
+RWF_ATOMIC
+RWF_DONTCACHE
+RWF_DSYNC
+RWF_HIPRI
+RWF_NOAPPEND
+RWF_NOWAIT
+RWF_SYNC
 R_OK
 SA_NOCLDSTOP
 SA_NOCLDWAIT
@@ -2399,6 +2425,11 @@ SECCOMP_FILTER_FLAG_TSYNC_ESRCH
 SECCOMP_FILTER_FLAG_WAIT_KILLABLE_RECV
 SECCOMP_GET_ACTION_AVAIL
 SECCOMP_GET_NOTIF_SIZES
+SECCOMP_IOCTL_NOTIF_ADDFD
+SECCOMP_IOCTL_NOTIF_ID_VALID
+SECCOMP_IOCTL_NOTIF_RECV
+SECCOMP_IOCTL_NOTIF_SEND
+SECCOMP_IOCTL_NOTIF_SET_FLAGS
 SECCOMP_MODE_DISABLED
 SECCOMP_MODE_FILTER
 SECCOMP_MODE_STRICT
@@ -3443,6 +3474,7 @@ dup
 dup2
 duplocale
 endgrent
+endpwent
 endservent
 epoll_create
 epoll_create1
@@ -3536,6 +3568,7 @@ ftell
 ftello
 ftruncate
 ftruncate64
+futex_waitv
 futimens
 fwrite
 fwrite_unlocked
@@ -3573,6 +3606,7 @@ getppid
 getpriority
 getprotobyname
 getprotobynumber
+getpwent
 getpwnam
 getpwnam_r
 getpwuid
@@ -3768,6 +3802,7 @@ prctl
 pread
 pread64
 preadv
+preadv2
 preadv64
 printf
 prlimit
@@ -3871,6 +3906,7 @@ puts
 pwrite
 pwrite64
 pwritev
+pwritev2
 pwritev64
 qsort
 raise
@@ -3925,6 +3961,10 @@ sched_setscheduler
 sched_yield
 seccomp_data
 seccomp_metadata
+seccomp_notif
+seccomp_notif_addfd
+seccomp_notif_resp
+seccomp_notif_sizes
 seekdir
 select
 sem_close
@@ -3960,6 +4000,7 @@ setlogmask
 setns
 setpgid
 setpriority
+setpwent
 setregid
 setresgid
 setresuid
@@ -4090,6 +4131,11 @@ tgkill
 time
 time_t
 timegm
+timer_create
+timer_delete
+timer_getoverrun
+timer_gettime
+timer_settime
 timerfd_create
 timerfd_gettime
 timerfd_settime

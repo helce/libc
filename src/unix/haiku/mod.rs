@@ -81,7 +81,7 @@ pub type posix_spawnattr_t = *mut c_void;
 pub type posix_spawn_file_actions_t = *mut c_void;
 
 extern_ty! {
-    pub enum timezone {}
+    pub type timezone;
 }
 
 impl siginfo_t {
@@ -902,6 +902,9 @@ pub const MINSIGSTKSZ: size_t = 8192;
 pub const SIGSTKSZ: size_t = 16384;
 
 pub const IOV_MAX: c_int = 1024;
+
+/// Constants may change across releases. See the [usage guidelines](crate#usage-guidelines)
+/// for details.
 pub const PATH_MAX: c_int = 1024;
 
 pub const SA_NOCLDSTOP: c_int = 0x01;
@@ -1098,7 +1101,7 @@ pub const PTHREAD_MUTEX_INITIALIZER: pthread_mutex_t = pthread_mutex_t {
 pub const PTHREAD_COND_INITIALIZER: pthread_cond_t = pthread_cond_t {
     flags: 0,
     unused: Padding::new(0),
-    mutex: 0 as *mut _,
+    mutex: ptr::null_mut(),
     waiter_count: 0,
     lock: 0,
 };
@@ -1109,7 +1112,7 @@ pub const PTHREAD_RWLOCK_INITIALIZER: pthread_rwlock_t = pthread_rwlock_t {
     lock_count: 0,
     reader_count: 0,
     writer_count: 0,
-    waiters: [0 as *mut _; 2],
+    waiters: [ptr::null_mut(); 2],
 };
 
 pub const PTHREAD_MUTEX_DEFAULT: c_int = 0;
@@ -1385,9 +1388,9 @@ const fn CMSG_ALIGN(len: usize) -> usize {
 f! {
     pub fn CMSG_FIRSTHDR(mhdr: *const msghdr) -> *mut cmsghdr {
         if (*mhdr).msg_controllen as usize >= size_of::<cmsghdr>() {
-            (*mhdr).msg_control as *mut cmsghdr
+            (*mhdr).msg_control.cast()
         } else {
-            core::ptr::null_mut::<cmsghdr>()
+            ptr::null_mut()
         }
     }
 
@@ -1412,7 +1415,7 @@ f! {
             + CMSG_ALIGN(size_of::<cmsghdr>());
         let max = (*mhdr).msg_control as usize + (*mhdr).msg_controllen as usize;
         if next > max {
-            core::ptr::null_mut::<cmsghdr>()
+            ptr::null_mut()
         } else {
             (cmsg as usize + CMSG_ALIGN((*cmsg).cmsg_len as usize)) as *mut cmsghdr
         }
@@ -1439,9 +1442,7 @@ f! {
     }
 
     pub fn FD_ZERO(set: *mut fd_set) -> () {
-        for slot in (*set).fds_bits.iter_mut() {
-            *slot = 0;
-        }
+        (*set).fds_bits.fill(0);
     }
 }
 
