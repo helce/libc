@@ -80,6 +80,10 @@ impl Target {
         self.arch == "arm"
     }
 
+    pub fn e2k(&self) -> bool {
+        self.arch == "e2k"
+    }
+
     pub fn hexagon(&self) -> bool {
         self.arch == "hexagon"
     }

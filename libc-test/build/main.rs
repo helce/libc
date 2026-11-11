@@ -4060,6 +4060,7 @@ fn test_linux(t: &Target) {
     let loongarch64 = t.loongarch64();
     let wasm32 = t.wasm32();
     let uclibc = t.uclibc();
+    let e2k = t.e2k();
     let mips = t.mips();
     let mips32 = t.mips32();
     let pauthtest = t.pauthtest();
